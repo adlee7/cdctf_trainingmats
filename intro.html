@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDCTF Introduction to Competitions</title>
+    <link rel="icon" type="image/x-icon" href="favicon1.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #333333;
+            --heading: #111111;
+            --accent: #C0392B;
+            --accent-secondary: #F1C40F;
+            --intro-bg: #f9fafb;
+            --intro-border: #e5e7eb;
+            --tag-bg: #eef0f3;
+            --tag-text: #333333;
+            --question-border: #dddddd;
+            --incorrect-border: #dc2626;
+            --incorrect-bg: #fef2f2;
+            --table-border: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --text: #e0e0e0;
+            --heading: #ffffff;
+            --accent: #e05f4e;
+            --accent-secondary: #f5d547;
+            --intro-bg: #1e1e1e;
+            --intro-border: #333333;
+            --tag-bg: #2a2a2a;
+            --tag-text: #e0e0e0;
+            --question-border: #3a3a3a;
+            --incorrect-border: #f87171;
+            --incorrect-bg: #3a1f1f;
+            --table-border: #333333;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 0.9rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            color: var(--text);
+            border-radius: 999px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .theme-toggle:hover { border-color: var(--accent); }
+
+        .welcome-banner {
+            max-width: 600px;
+            margin: 2rem auto 0;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, #F1C40F, #C0392B);
+            color: #fff;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+        }
+        .welcome-banner h1 { margin: 0 0 0.5rem; font-size: 1.8rem; }
+        .welcome-banner p { margin: 0; font-size: 1rem; opacity: 0.9; }
+
+        .intro {
+            max-width: 600px;
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: var(--text);
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .intro h2 { margin: 0 0 0.75rem; font-size: 1.4rem; color: var(--heading); }
+        .intro p { margin: 0 0 0.75rem; line-height: 1.5; font-size: 0.95rem; }
+        .intro h3 { margin: 1rem 0 0.5rem; font-size: 1.1rem; color: var(--accent); }
+        .intro ul { margin: 0 0 0.5rem; padding-left: 1.25rem; }
+        .intro ul li { margin-bottom: 0.3rem; font-size: 0.95rem; line-height: 1.4; }
+        .intro code {
+            background: var(--tag-bg);
+            color: var(--text);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .intro table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0 1rem;
+            font-size: 0.9rem;
+        }
+        .intro table th, .intro table td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--table-border);
+        }
+        .intro table th { color: var(--heading); }
+        .intro .tag {
+            display: inline-block;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            margin: 0.1rem 0.2rem 0.1rem 0;
+        }
+
+        .quiz-container { max-width: 600px; margin: 2rem auto; font-family: Roboto, Arial, Helvetica, sans-serif; }
+        .quiz-question {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--question-border);
+            border-radius: 8px;
+            color: var(--text);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .quiz-question.incorrect-question { border-color: var(--incorrect-border); background-color: var(--incorrect-bg); }
+        .quiz-question-title { font-weight: bold; margin-bottom: 0.4rem; color: var(--heading); }
+        .quiz-description { margin: 0 0 0.3rem; color: var(--text); font-size: 0.95rem; }
+        .quiz-instructions { margin: 0 0 0.6rem; color: var(--text); opacity: 0.7; font-size: 0.85rem; font-style: italic; }
+        .quiz-options label { display: block; margin: 0.4rem 0; cursor: pointer; }
+        .quiz-submit { padding: 0.6rem 1.2rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+        .quiz-submit:hover { background: var(--accent-secondary); color: #111; }
+        .quiz-result { margin-top: 1rem; font-weight: bold; }
+        .correct { color: #16a34a; }
+        .incorrect { color: #dc2626; }
+        [data-theme="dark"] .correct { color: #4ade80; }
+        [data-theme="dark"] .incorrect { color: #f87171; }
+    </style>
+</head>
+
+<body>
+ <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+
+ <section class="welcome-banner">
+    <h1>Welcome to the CDCTF Introduction to Competitions</h1>
+    <p>Learn how CTF events work and solve the following quiz to get the flag!</p>
+ </section>
+
+ <section class="intro">
+    <h2>What is a CTF?</h2>
+    <p>Capture The Flag (CTF) competitions are cybersecurity challenges where competitors solve puzzles to find hidden strings called "flags," usually formatted like <code>cdctf{some_text_here}</code>. Flags are submitted to a scoring platform to earn points.</p>
+    <p>Most CTFs follow a "jeopardy-style" format, where challenges are organized so teams can pick whichever challenges they want to attempt in whatever order they like — as opposed to "attack-defense" formats, where teams actively attack each other's infrastructure in real time. CDCTF follows this jeopardy-style approach.</p>
+ </section>
+
+ <section class="intro">
+    <h2>Challenge Structure & Topic Tags</h2>
+    <p>CDCTF doesn't sort challenges into the standard fixed categories you might see at other events. Instead, challenges are grouped under event-specific names, and each challenge is labeled with one or more <strong>topic tags</strong> that tell you which familiar skillset it draws on.</p>
+    <p>Think of a topic tag as a hint about what kind of thinking the challenge rewards, not a strict bucket. A single challenge can carry more than one tag if it blends skills.</p>
+    <h3>Common Topic Tags</h3>
+    <p>
+        <span class="tag">Web</span>
+        <span class="tag">Crypto</span>
+        <span class="tag">Pwn</span>
+        <span class="tag">Reverse Engineering</span>
+        <span class="tag">Forensics</span>
+        <span class="tag">OSINT</span>
+        <span class="tag">Log Analysis</span>
+        <span class="tag">Scanning</span>
+        <span class="tag">Network Analysis</span>
+        <span class="tag">Social Engineering</span>
+        <span class="tag">AI</span>
+    </p>
+    <h3>How to Use Tags</h3>
+    <ul>
+        <li>Identify the skills needed for challenges in lieu of traditional categories.</li>
+        <li>Use tags to spot a weak spot in your team's coverage (e.g. nobody has touched anything tagged Crypto yet)</li>
+        <li>Don't assume a challenge's name tells you its tag — always check the tag(s) itself before diving in</li>
+    </ul>
+ </section>
+
+ <section class="intro">
+    <h2>Training MAT Challenges</h2>
+    <p>Our <strong>Training MAT</strong> challenges are designed to give beginners a concrete place to start instead of facing a wall of advanced challenges with no entry point. Each MAT walks through the basic tools and reasoning for one skill area, so you leave with a working method you can apply to harder challenges in that same area later in the event.</p>
+    <p>If you're new to a topic, starting with its Training MAT is the recommended first move — this tutorial you're completing right now is itself part of a Training MAT.</p>
+    <h3>CDCTF Training MATs</h3>
+    <ul>
+        <li>OSINT</li>
+        <li>Password Cracking</li>
+        <li>Forensics</li>
+        <li>Cryptography</li>
+        <li>Reverse Engineering & Pwn</li>
+        <li>Network and Log Analysis</li>
+    </ul>
+    <p>If you're a veteran CTF competitor, you always have the option of cheesing the MAT, but you have to figure out how to do that on your own ;)</p>
+ </section>
+
+ <section class="intro">
+    <h2>How Dynamic Scoring Works</h2>
+    <p>In response to feedback from last year's CDCTF, this year CDCTF will use dynamic scoring: every challenge starts at a maximum point value, and that value decreases as more teams solve it, down to a set minimum.</p>
+    <h3>Why We Use It</h3>
+    <ul>
+        <li>Prevents "easy" challenges with hundreds of solves from being worth as much as genuinely hard ones</li>
+        <li>Encourages teams to spread out across categories instead of everyone rushing the same challenge</li>
+        <li>Organizers do not need to hand-tune every point value in advance</li>
+    </ul>
+    <h3>What This Means for You</h3>
+    <p>A challenge's displayed point value can change throughout the event as more teams solve it, so don't be surprised if it's worth less by the time you finish than when you started. Check the scoreboard periodically to see which categories still have high-value, unsolved challenges.</p>
+    <p>At the beginning of the competition, all challenges will appear to be the same difficulty. If this seems daunting, start with the Training MATs and wait for the experienced competitors to solve challenges, revealing the easier ones in time.</p>
+    <p>Most challenges will have a starting value of 500 points, however a few challenges identified as extremely difficult may have a starting value of 800 points.</p>
+</section>
+
+ <section class="intro">
+    <h2>Event AI Policy</h2>
+    <p>CDCTF is made for humans, by humans. Our challenges are meant to be unique and creative (not especially challenging) with the goal of inspiring and fueling your love and passion for cyber. Except for challenges that explicitly state that they are made with AI (often to demonstrate the associated risks), all challenges are developed and solved manually by our team. If our verification team can solve these challenges themselves, you can too! And we encourage you to do so.</p>
+    <p>As for what is outright banned, our stance amounts to: you may use AI tools, but AI may not be the one solving the challenges. Since platitudes do not make an enforceable policy, here are our lines.</p>
+    <h3>What's Allowed</h3>
+    <ul>
+        <li>Asking an AI tool to explain a concept, error message, or piece of documentation</li>
+        <li>Having an AI research the subject of a challenge</li>
+        <li>Designing a script to solve a challenge locally with AI assistance</li>
+        <li>Brainstorming challenge methodology with the help of AI</li>
+        <li>Using AI as a study aid before or between challenges</li>
+    </ul>
+    <h3>What's Not Allowed</h3>
+    <ul>
+        <li>Using AI tools to directly interact with our competition platform or challenge instances.</li>
+        <li>Pasting an entire challenge prompt or file into an AI tool and submitting its output as your flag without doing the analysis yourself</li>
+        <li>Using AI-powered automated exploitation tools that solve a challenge end-to-end with no human input</li>
+        <li>Sharing flags, challenge files, or solutions with AI tools or services in a way that leaks them to other competitors</li>
+        <li>Run an AI-generated script against our competition platform or challenge instances</li>
+        <li>Otherwise violate the competition rules under the guidance of AI</li>
+    </ul>
+
+    <h3>Enforcement</h3>
+    <p>We will collect evidence throughout the competition.</p>
+    <ul>
+        <li>If conduct appears suspicious, but may be benign, we will provide a warning indicating what we have observed.</li>
+            <ul>
+                <li>If this warning was issued on arguable grounds (e.g. submission of a red-herring flag), a writeup may be provided as an appeal to have the warning disregarded.</li>
+                <li>This appeal must be submitted before disqualification.</li>
+                <li>If further misconduct proceeds before submission and the team is disqualified, that decision will not be reversed.</li>
+            </ul>
+        <li>If warnings are not heeded and there is sufficient evidence of misconduct, we will disqualify the team.</li>
+        <li>If automated tools interfere with other teams or launch an attack on our infrastructure, we will disqualify the team without warning and block the associated IP addresses.</li>
+    </ul>
+
+    <p>When in doubt, ask yourself: "Am I using this tool to learn and build my own solution, or am I using it to skip the challenge entirely?" If it's the latter, it's against the spirit of the event even if a specific rule doesn't name it. Organizers reserve the right to disqualify submissions that violate this policy.</p>
+ </section>
+
+ <section class="quiz-container" id="quizPart1"></section>
+
+ <section class="intro">
+    <h2>Before You Continue</h2>
+    <p>Before moving on, make sure you can tell tags and Training MATs apart — they're related but serve different purposes.</p>
+    <h3>Quick Recap</h3>
+    <ul>
+        <li>Topic tags tell you <strong>what kind of skill</strong> a challenge draws on</li>
+        <li>Training MATs are <strong>beginner-friendly starting points</strong> for a given skill area</li>
+    </ul>
+ </section>
+
+ <section class="quiz-container" id="quizPart2"></section>
+
+ <section class="intro">
+    <h2>Before You Continue</h2>
+    <p>One more thing before the final two questions: dynamic scoring rewards being early, and the AI policy rewards doing your own thinking — keep both in mind as you work through the event.</p>
+    <h3>Ask Yourself</h3>
+    <ul>
+        <li>Is this challenge's value still high, or have a lot of teams already solved it?</li>
+        <li>Would I be comfortable explaining my solution step-by-step to a teammate?</li>
+    </ul>
+ </section>
+
+ <!-- Quiz part 3: q5 and q6, submit button, and result -->
+ <section class="quiz-container" id="quizPart3"></section>
+
+ <script>
+    // ----- Dark mode toggle -----
+    const themeToggle = document.getElementById('themeToggle');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️ Light Mode';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙 Dark Mode';
+      }
+    }
+
+    // Respect a previously saved choice, otherwise fall back to system preference
+    const savedTheme = localStorage.getItem('cdctf-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      applyTheme(newTheme);
+      localStorage.setItem('cdctf-theme', newTheme);
+    });
+
+    // ----- Quiz -----
+    const questions = [
+      {
+        id: 'q1',
+        title: "Step 1: What does a challenge's topic tag(s) tell you?",
+        description: 'CDCTF uses non-standard category names, but still labels each challenge with tag(s).',
+        instructions: 'Select the best answer.',
+        options: [
+          { value: 'a', label: "The exact point value the challenge is worth" },
+          { value: 'b', label: 'Which familiar skillset the challenge draws on (e.g. Web, Crypto, Forensics)' },
+          { value: 'c', label: 'How many teams have solved the challenge so far' },
+          { value: 'd', label: 'Whether AI tools are allowed on that specific challenge' }
+        ],
+        answer: 'b'
+      },
+      {
+        id: 'q2',
+        title: 'Step 2: Which of the following IS one of the six Training MATs?',
+        description: 'Review the list of available Training MATs before answering.',
+        instructions: 'Select the best answer.',
+        options: [
+          { value: 'a', label: 'Network Exploitation' },
+          { value: 'b', label: 'Web Exploitation' },
+          { value: 'c', label: 'Reverse Engineering & Pwn' },
+          { value: 'd', label: 'Scanning & Reconnaissance' }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q3',
+        title: "Step 3: Under dynamic scoring, what happens to a challenge's point value as more teams solve it?",
+        description: 'Consider how this differs from a fixed point-value system.',
+        instructions: 'Select the best answer.',
+        options: [
+          { value: 'a', label: 'It increases' },
+          { value: 'b', label: 'It decreases toward a minimum' },
+          { value: 'c', label: 'It stays exactly the same' },
+          { value: 'd', label: 'It resets to zero' }
+        ],
+        answer: 'b'
+      },
+      {
+        id: 'q4',
+        title: 'Step 4: Why does CDCTF use dynamic scoring instead of fixed point values?',
+        description: 'Think about what problem it solves for organizers and competitors alike.',
+        instructions: 'Select the best answer.',
+        options: [
+          { value: 'a', label: 'To make every challenge worth the same amount' },
+          { value: 'b', label: 'To randomly assign points at the end of the event' },
+          { value: 'c', label: 'To hide the scoreboard from competitors' },
+          { value: 'd', label: 'To avoid having easy challenges be worth more than hard ones' }
+        ],
+        answer: 'd'
+      },
+      {
+        id: 'q5',
+        title: "Step 5: What is the main purpose of a Training MAT challenge?",
+        description: 'Think about who these challenges are designed for and why.',
+        instructions: 'Select the best answer.',
+        options: [
+          { value: 'a', label: "To give beginners a guided starting point so they don't feel lost" },
+          { value: 'b', label: 'To award the maximum possible points available at the event' },
+          { value: 'c', label: 'To test advanced competitors against each other in real time' },
+          { value: 'd', label: 'To replace topic tags entirely' }
+        ],
+        answer: 'a'
+      },
+      {
+        id: 'q6',
+        title: 'Step 6: Which of these best follows the event AI policy?',
+        description: 'Consider the difference between using AI to learn versus using it to skip the work entirely.',
+        instructions: 'Select the best answer. This flag will not be accepted for points, you will get one if you complete all the questions.',
+        options: [
+          { value: 'a', label: 'Pasting the full challenge file into an AI tool and submitting whatever flag it returns' },
+          { value: 'b', label: 'Asking an AI tool to explain an error message while you debug your own script' },
+          { value: 'c', label: 'Sharing a solved challenge with an AI chatbot to see if it can solve more' },
+          { value: 'd', label: 'Using an automated AI exploitation tool to solve the challenge end-to-end' }
+        ],
+        answer: 'b'
+      }
+    ];
+
+    const groupBoundaries = [2, 4, questions.length];
+
+    function renderQuestionGroup(group, startIndex) {
+      return group.map((q, i) => {
+        const optionsHtml = q.options.map(opt =>
+          `<label><input type="radio" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+        ).join('\n');
+
+        return `
+          <div class="quiz-question" data-question="${q.id}">
+            <p class="quiz-question-title">${startIndex + i + 1}. ${q.title}</p>
+            <p class="quiz-description">${q.description}</p>
+            <p class="quiz-instructions">${q.instructions}</p>
+            <div class="quiz-options">
+              ${optionsHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderQuiz() {
+      const group1 = questions.slice(0, groupBoundaries[0]);
+      const group2 = questions.slice(groupBoundaries[0], groupBoundaries[1]);
+      const group3 = questions.slice(groupBoundaries[1], groupBoundaries[2]);
+
+      document.getElementById('quizPart1').innerHTML = renderQuestionGroup(group1, 0);
+      document.getElementById('quizPart2').innerHTML = renderQuestionGroup(group2, groupBoundaries[0]);
+
+      document.getElementById('quizPart3').innerHTML =
+        renderQuestionGroup(group3, groupBoundaries[1]) +
+        `<button type="button" id="quizSubmit" class="quiz-submit">Submit</button>
+         <div id="quizResult" class="quiz-result"></div>`;
+
+      document.getElementById('quizSubmit').addEventListener('click', scoreQuiz);
+    }
+
+    function scoreQuiz() {
+      let score = 0;
+      const total = questions.length;
+
+      document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('incorrect-question');
+      });
+
+      questions.forEach(q => {
+        const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+        const isCorrect = selected && selected.value === q.answer;
+
+        if (isCorrect) {
+          score++;
+        } else {
+          const questionEl = document.querySelector(`.quiz-question[data-question="${q.id}"]`);
+          if (questionEl) questionEl.classList.add('incorrect-question');
+        }
+      });
+
+      const resultEl = document.getElementById('quizResult');
+
+      if (score === total) {
+        resultEl.textContent = 'Congratulations! You completed the CDCTF Introduction to Competitions! Here is your flag to enter on the CTFd platform: cdctf{I_am_R3ady_2_C0mp3te!}';
+        resultEl.className = 'quiz-result correct';
+      } else {
+        resultEl.textContent = `You scored ${score} out of ${total}. Incorrect questions are highlighted.`;
+        resultEl.className = 'quiz-result incorrect';
+      }
+    }
+
+    renderQuiz();
+ </script>
+</body>
+</html>

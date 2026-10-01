@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDCTF Digital Forensics Training MAT</title>
+    <link rel="icon" type="image/x-icon" href="favicon1.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #333333;
+            --heading: #111111;
+            --accent: #0d9488;
+            --accent-secondary: #22c55e;
+            --intro-bg: #f9fafb;
+            --intro-border: #e5e7eb;
+            --tag-bg: #eef0f3;
+            --tag-text: #333333;
+            --question-border: #dddddd;
+            --incorrect-border: #dc2626;
+            --incorrect-bg: #fef2f2;
+            --table-border: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --text: #e0e0e0;
+            --heading: #ffffff;
+            --accent: #5eead4;
+            --accent-secondary: #86efac;
+            --intro-bg: #1e1e1e;
+            --intro-border: #333333;
+            --tag-bg: #2a2a2a;
+            --tag-text: #e0e0e0;
+            --question-border: #3a3a3a;
+            --incorrect-border: #f87171;
+            --incorrect-bg: #3a1f1f;
+            --table-border: #333333;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 0.9rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            color: var(--text);
+            border-radius: 999px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .theme-toggle:hover { border-color: var(--accent); }
+
+        .welcome-banner {
+            max-width: 600px;
+            margin: 2rem auto 0;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent));
+            color: #fff;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+        }
+        .welcome-banner h1 { margin: 0 0 0.5rem; font-size: 1.8rem; }
+        .welcome-banner p { margin: 0; font-size: 1rem; opacity: 0.9; }
+
+        .intro {
+            max-width: 600px;
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: var(--text);
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .intro h2 { margin: 0 0 0.75rem; font-size: 1.4rem; color: var(--heading); }
+        .intro p { margin: 0 0 0.75rem; line-height: 1.5; font-size: 0.95rem; }
+        .intro h3 { margin: 1rem 0 0.5rem; font-size: 1.1rem; color: var(--accent); }
+        .intro ul { margin: 0 0 0.5rem; padding-left: 1.25rem; }
+        .intro ul li { margin-bottom: 0.3rem; font-size: 0.95rem; line-height: 1.4; }
+        .intro code {
+            background: var(--tag-bg);
+            color: var(--text);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .intro table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0 1rem;
+            font-size: 0.9rem;
+        }
+        .intro table th, .intro table td {
+            text-align: left;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--table-border);
+        }
+        .intro table th { color: var(--heading); }
+        .intro .tag {
+            display: inline-block;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            margin: 0.1rem 0.2rem 0.1rem 0;
+        }
+        .warning {
+            max-width: 600px;
+            margin: 1.5rem auto;
+            padding: 1.25rem 1.5rem;
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-left: 5px solid #f59e0b;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: #78350f;
+        }
+        .warning h2 {
+            margin: 0 0 0.5rem;
+            font-size: 1.15rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .warning p { margin: 0 0 0.6rem; line-height: 1.5; font-size: 0.9rem; }
+        .warning p:last-child { margin-bottom: 0; }
+        .warning strong { color: #92400e; }
+        [data-theme="dark"] .warning {
+            background: #2d2410;
+            border-color: #d97706;
+            color: #fde68a;
+        }
+        [data-theme="dark"] .warning h2 { color: #fbbf24; }
+        [data-theme="dark"] .warning strong { color: #fbbf24; }
+
+        .intro .placeholder {
+            border: 1px dashed var(--intro-border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-style: italic;
+            opacity: 0.75;
+            color: var(--text);
+        }
+
+        .quiz-container { max-width: 600px; margin: 2rem auto; font-family: Roboto, Arial, Helvetica, sans-serif; }
+        .quiz-question {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--question-border);
+            border-radius: 8px;
+            color: var(--text);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .quiz-question.incorrect-question { border-color: var(--incorrect-border); background-color: var(--incorrect-bg); }
+        .quiz-question-title { font-weight: bold; margin-bottom: 0.4rem; color: var(--heading); }
+        .quiz-description { margin: 0 0 0.3rem; color: var(--text); font-size: 0.95rem; }
+        .quiz-instructions { margin: 0 0 0.6rem; color: var(--text); opacity: 0.7; font-size: 0.85rem; font-style: italic; }
+        .quiz-options label { display: block; margin: 0.4rem 0; cursor: pointer; }
+        .quiz-text-input { width: 100%; padding: 0.5rem; border: 1px solid var(--question-border); border-radius: 4px; font-size: 1rem; box-sizing: border-box; background: var(--bg); color: var(--text); }
+        .quiz-submit { padding: 0.6rem 1.2rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+        .quiz-submit:hover { background: var(--accent-secondary); color: #111; }
+        .quiz-result { margin-top: 1rem; font-weight: bold; }
+        .correct { color: #16a34a; }
+        .incorrect { color: #dc2626; }
+        [data-theme="dark"] .correct { color: #4ade80; }
+        [data-theme="dark"] .incorrect { color: #f87171; }
+    </style>
+</head>
+
+<body>
+ <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+
+ <section class="welcome-banner">
+    <h1>Welcome to the CDCTF Digital Forensics Training MAT</h1>
+    <p>Learn the basics of digital forensics and solve the following challenges to get the flag!</p>
+ </section>
+
+ <section class="warning">
+    <h2>⚠️ Before You Begin</h2>
+    <p><strong>Every flag you recover while working through this MAT — from each individual challenge step as well as the one awarded for completing the full quiz — must be submitted separately to the CDCTF CTFd platform.</strong></p>
+    <p><strong>This MAT cannot be cheesed like the other Training MATs.</strong> There is no shortcut hidden in this page's source code, and no single answer that skips the process. Each step genuinely requires you to work through the artifact with the appropriate tool — you must solve ALL of the challenges to get ALL of the flags for completion.</p>
+    <p>There are <strong>5 total</strong> flags to submit in the CTFd platform for credit.</p>
+</section>
+
+ <section class="intro">
+    <h2>What is Digital Forensics?</h2>
+    <p>Digital forensics is the practice of identifying, extracting, and analyzing data from digital artifacts — disk images, memory dumps, individual files, filesystems, and more — in order to answer a question or reconstruct what happened. In a CTF, that usually means working through one or more artifacts to recover a hidden flag.</p>
+    <p>Unlike OSINT, which focuses on publicly available information, forensics challenges hand you a file or image directly and ask you to dig into its structure: What format is it? What's hidden inside it? What does its metadata or filesystem reveal? Each of those questions usually points you toward a different tool.</p>
+
+    <h3>Common Forensics Challenge Types</h3>
+    <ul>
+        <li><strong>File Identification & Carving</strong>: Figuring out what type of file or archive you're dealing with, then extracting or decompressing it correctly.</li>
+        <li><strong>Disk & Filesystem Analysis</strong>: Mounting or browsing a disk image to recover files, partitions, or deleted data.</li>
+        <li><strong>Steganography</strong>: Finding data hidden inside another file — often an image or audio file — using techniques like LSB encoding or dedicated embedding tools.</li>
+        <li><strong>Metadata Analysis</strong>: Examining the hidden fields attached to a file (EXIF data, document properties) for clues or hidden content.</li>
+        <li><strong>File Carving & Embedded Files</strong>: Detecting and extracting one file that's been hidden inside another, often by appending it after the first file's end-of-data marker.</li>
+        <li><strong>Memory & Filesystem Forensics</strong>: Using filesystem-specific features (journals, snapshots) or memory images to recover data that isn't visible through normal browsing.</li>
+    </ul>
+ </section>
+
+ <section class="intro">
+    <h2>Toolbox</h2>
+    <p>These are the core tools you'll lean on throughout this MAT. You don't need to memorize every flag or option — just know roughly what each tool is for, and come back to its documentation when you need specifics.</p>
+
+    <h3>Compression & Archives</h3>
+    <ul>
+        <li><strong><a href="https://linux.die.net/man/1/file" target="_blank" rel="noopener noreferrer">file</a></strong>: Identifies a file's type by inspecting its contents (magic bytes) rather than trusting its extension.</li>
+        <li><strong><a href="https://infozip.sourceforge.net/UnZip.html" target="_blank" rel="noopener noreferrer">unzip</a></strong>: Extracts files from a ZIP archive.</li>
+        <li><strong><a href="https://www.gnu.org/software/gzip/manual/gzip.html" target="_blank" rel="noopener noreferrer">gunzip</a></strong>: Decompresses GZIP-compressed files.</li>
+        <li><strong><a href="https://sourceware.org/bzip2/" target="_blank" rel="noopener noreferrer">bunzip2</a></strong>: Decompresses BZIP2-compressed files.</li>
+        <li><strong><a href="https://tukaani.org/xz/" target="_blank" rel="noopener noreferrer">unxz</a></strong>: Decompresses XZ-compressed files.</li>
+    </ul>
+
+    <h3>Disk & Memory Analysis</h3>
+    <ul>
+        <li><strong><a href="https://www.autopsy.com/" target="_blank" rel="noopener noreferrer">Autopsy</a></strong>: A graphical digital forensics platform for browsing disk images, recovering files, and viewing filesystem artifacts.</li>
+        <li><strong><a href="https://volatilityfoundation.org/" target="_blank" rel="noopener noreferrer">Volatility</a></strong>: A command-line framework for analyzing memory image dumps.</li>
+        <li><strong><a href="https://www.sleuthkit.org/sleuthkit/" target="_blank" rel="noopener noreferrer">The Sleuth Kit</a></strong>: A suite of command-line tools for analyzing disk images and filesystems.</li>
+        <li><strong><a href="https://man7.org/linux/man-pages/man8/losetup.8.html" target="_blank" rel="noopener noreferrer">losetup</a></strong>: A Linux utility that lets you mount a raw image file as a usable block device.</li>
+        <li><strong><a href="https://btrfs.readthedocs.io/" target="_blank" rel="noopener noreferrer">btrfs-progs</a></strong>: Command-line tools for working with the Btrfs filesystem, including its snapshot and journal features.</li>
+    </ul>
+
+    <h3>Metadata & Steganography</h3>
+    <ul>
+        <li><strong><a href="https://exiftool.org/" target="_blank" rel="noopener noreferrer">ExifTool</a></strong>: Reads and edits metadata embedded in image and document files.</li>
+        <li><strong><a href="https://github.com/zed-0xff/zsteg" target="_blank" rel="noopener noreferrer">zsteg</a></strong>: Detects hidden data in PNG and BMP files, commonly used for LSB steganography.</li>
+        <li><strong><a href="https://steghide.sourceforge.net/" target="_blank" rel="noopener noreferrer">steghide</a></strong>: Embeds and extracts hidden data in image and audio files using a passphrase.</li>
+        <li><strong><a href="https://www.aperisolve.com/" target="_blank" rel="noopener noreferrer">Aperi'Solve</a></strong>: An online platform that runs an image through several steganography and metadata tools at once.</li>
+    </ul>
+
+    <h3>File Carving & General Analysis</h3>
+    <ul>
+        <li><strong><a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">CyberChef</a></strong>: A browser-based "data manipulation" tool with building blocks for decoding, extracting, and transforming data, including an Extract Files block.</li>
+        <li><strong><a href="https://github.com/ReFirmLabs/binwalk" target="_blank" rel="noopener noreferrer">binwalk</a></strong>: Scans a file for embedded files and executable code, and can extract what it finds.</li>
+        <li><strong><a href="https://man7.org/linux/man-pages/man1/strings.1.html" target="_blank" rel="noopener noreferrer">strings</a></strong>: Prints printable character sequences found in a binary file, often useful for spotting readable clues.</li>
+        <li><strong><a href="https://man7.org/linux/man-pages/man1/dd.1.html" target="_blank" rel="noopener noreferrer">dd</a></strong>: Copies and converts raw data, often used to extract a specific byte range from a larger file.</li>
+        <li><strong>A hex editor</strong> (e.g. <a href="https://mh-nexus.de/en/hxd/" target="_blank" rel="noopener noreferrer">HxD</a> or <a href="https://gitlab.gnome.org/GNOME/ghex" target="_blank" rel="noopener noreferrer">GHex</a>): Lets you view and edit the raw bytes of a file, essential for fixing corrupted headers or checksums.</li>
+    </ul>
+
+    <h3>A Note Before You Start</h3>
+    <p>Not every tool above will be used in every challenge. Part of the forensics skillset is narrowing down which tool fits the artifact in front of you — the <code>file</code> command is almost always a good first move when you're not sure what you're looking at.</p>
+ </section>
+
+ <section class="intro">
+    <h2>Part 1: Decompression, Identification, and Partitions</h2>
+    <p>This part starts at the very beginning: you're handed a compressed artifact and need to figure out how to decompress it, identify what kind of artifact it actually is, choose an appropriate analysis tool, and then make sense of its partitions and filesystems before you can look for anything inside.</p>
+    <h3>Tools You'll Use</h3>
+    <ul>
+        <li><code>file</code> — to identify both the compression format and the artifact type</li>
+        <li><code>unxz</code>/<code>gunzip</code>/<code>bunzip2</code>/<code>unzip</code> — to decompress the artifact</li>
+        <li>Autopsy, Volatility, The Sleuth Kit, or <code>losetup</code> — to analyze the resulting artifact, depending on its type</li>
+    </ul>
+    <h3>Challenge Description</h3>
+    <p class="placeholder">[Insert the Part 1 challenge description here.]</p>
+ </section>
+
+ <!-- Quiz Part 1: q1–q7 -->
+ <section class="quiz-container" id="quizPart1"></section>
+
+ <section class="intro">
+    <h2>Part 2: Disguised and Hidden Files</h2>
+    <p>Not every file is what it claims to be. In this part, you'll extract a file using the same recovery skills from Part 1, then discover that its true format doesn't match what you'd expect — and that the flag isn't sitting in plain sight even once you open it correctly.</p>
+    <h3>Tools You'll Use</h3>
+    <ul>
+        <li><code>file</code> — to confirm the file's real type regardless of its extension</li>
+        <li><a href="https://www.aperisolve.com/" target="_blank" rel="noopener noreferrer">Aperi'Solve</a> — to quickly try several steganography techniques at once</li>
+        <li><a href="https://steghide.sourceforge.net/" target="_blank" rel="noopener noreferrer">steghide</a> — to extract data hidden with a passphrase-based embedding tool</li>
+    </ul>
+    <h3>Challenge Description</h3>
+    <p class="placeholder">[Insert the Part 2 challenge description here.]</p>
+ </section>
+
+ <!-- Quiz Part 2: q8–q9 -->
+ <section class="quiz-container" id="quizPart2"></section>
+
+ <section class="intro">
+    <h2>Part 3: Carrier Files and Embedded Archives</h2>
+    <p>Sometimes one file simply has another file appended to the end of it. This part covers spotting a file that's larger than it should be, detecting an embedded file inside it, and extracting and decompressing what you find.</p>
+    <h3>Tools You'll Use</h3>
+    <ul>
+        <li><a href="https://github.com/ReFirmLabs/binwalk" target="_blank" rel="noopener noreferrer">binwalk</a> — to scan for and extract embedded files</li>
+        <li><a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">CyberChef</a>'s Extract Files block — as an alternative way to pull embedded files out of a larger one</li>
+        <li><code>unxz</code> (or another decompression tool matching the archive type you find) — to decompress whatever was embedded</li>
+    </ul>
+    <h3>Challenge Description</h3>
+    <p class="placeholder">[Insert the Part 3 challenge description here.]</p>
+ </section>
+
+ <!-- Quiz Part 3: q10–q12 -->
+ <section class="quiz-container" id="quizPart3"></section>
+
+ <section class="intro">
+    <h2>Part 4: Filesystem Snapshots and Recovery</h2>
+    <p>Modern filesystems keep extra copies of data around for safety — journals, snapshots, and other recovery mechanisms. This final part asks you to recognize one of these mechanisms, understand how it can be deliberately or accidentally preserved, and use a classic recovery tool to pull a plaintext flag back out of it.</p>
+    <h3>Tools You'll Use</h3>
+    <ul>
+        <li><a href="https://btrfs.readthedocs.io/" target="_blank" rel="noopener noreferrer">btrfs-progs</a> — to understand and interact with Btrfs snapshots</li>
+        <li><a href="https://man7.org/linux/man-pages/man1/strings.1.html" target="_blank" rel="noopener noreferrer">strings</a> — to recover plaintext data straight off the raw partition</li>
+    </ul>
+    <h3>Challenge Description</h3>
+    <p class="placeholder">[Insert the Part 4 challenge description here.]</p>
+ </section>
+
+ <!-- Quiz Part 4: q13–q15, submit button, and result -->
+ <section class="quiz-container" id="quizPart4"></section>
+
+ <script>
+    // ----- Dark mode toggle -----
+    const themeToggle = document.getElementById('themeToggle');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️ Light Mode';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙 Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('cdctf-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      applyTheme(newTheme);
+      localStorage.setItem('cdctf-theme', newTheme);
+    });
+
+    // ----- Quiz -----
+    const questions = [
+      {
+        id: 'q1',
+        type: 'mc',
+        title: 'Part 1, Step 1: Decompressing the Artifact',
+        description: 'Since forensic artifacts tend to be large, they are often compressed to make them easier to download. Sometimes (like we did here), the challenge makers leave the correct extension in place. Otherwise, you can use the file command to tell which compression was used. Which command can we use to decompress this artifact?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'unzip' },
+          { value: 'b', label: 'gunzip' },
+          { value: 'c', label: 'bunzip2' },
+          { value: 'd', label: 'unxz' }
+        ],
+        answer: 'd'
+      },
+      {
+        id: 'q2',
+        type: 'mc',
+        title: 'Part 1, Step 2: Identifying the Class of Artifact',
+        description: 'Forensics includes all sorts of different artifacts - use the file command to tell which type we have here!',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'Archive' },
+          { value: 'b', label: 'Disk Image' },
+          { value: 'c', label: 'Memory Image' },
+          { value: 'd', label: 'Event Log' }
+        ],
+        answer: 'b'
+      },
+      {
+        id: 'q3',
+        type: 'checkbox',
+        title: 'Part 1, Step 3: Picking a tool',
+        description: "Several tools can be used to analyze artifacts of this type. Which of the following are appropriate?",
+        instructions: 'Select all that apply.',
+        options: [
+          { value: 'a', label: 'Autopsy, a graphical analyzer' },
+          { value: 'b', label: 'Volatility, a command line forensic tool' },
+          { value: 'c', label: 'TheSleuthKit, a suite of command line forensic tools' },
+          { value: 'd', label: 'losetup, a Linux tool to turn files into usable devices' }
+        ],
+        answer: ['a', 'b', 'd']
+      },
+      {
+        id: 'q4',
+        type: 'checkbox',
+        title: 'Part 1, Step 4: Classifying Partitions',
+        description: "One artifact of this type is composed of many different partitions. To analyze these, we need know their associated filesystems. Which types are present?",
+        instructions: 'Select all that apply.',
+        options: [
+          { value: 'a', label: 'fat32' },
+          { value: 'b', label: 'vfat' },
+          { value: 'c', label: 'exfat' },
+          { value: 'd', label: 'ext2' },
+          { value: 'e', label: 'ext3' },
+          { value: 'f', label: 'ext4' },
+          { value: 'g', label: 'btrfs' },
+          { value: 'h', label: 'ntfs' },
+          { value: 'i', label: 'zfs' }
+        ],
+        answer: ['b', 'd', 'f', 'g']
+      },
+      {
+        id: 'q5',
+        type: 'freeresponse',
+        title: 'Part 1, Step 5: Finding Normal Files',
+        description: 'Using your tool of choice, investigate the first partition (named "billy"). What is the name of the file present on the device?',
+        instructions: 'Type your answer in the box below.',
+        answer: ['flag1.png']
+      },
+      {
+        id: 'q6',
+        type: 'freeresponse',
+        title: 'Part 1, Step 6: Recovering Files',
+        description: 'Using your tool of choice, extract the file from the first partition. How many bytes is it?',
+        instructions: 'Type your answer in the box below, without units.',
+        answer: ['405']
+      },
+      {
+        id: 'q7',
+        type: 'mc',
+        title: 'Part 1, Step 7: Repairing Files',
+        description: 'Great work! Unfortunately, this file seems to be broken. Why will the image not open? Follow the solution and submit the flag in CTFd!',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'The checksum does not match (Solution: Use a hex editor to update the PNG checksum)' },
+          { value: 'b', label: 'The file extension is wrong (Solution: Change the extension to another image format)' },
+          { value: 'c', label: 'The magic bytes are wrong (Solution: Use a hex editor to make the leading bytes match a PNG)' },
+          { value: 'd', label: 'Part of the file is missing (Solution: Use dd to extract the missing pieces and cat to stitch them together)' }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q8',
+        type: 'mc',
+        title: 'Part 2, Step 1: Disguised Files',
+        description: 'Using your skills from Part 1 Steps 5-6, extract the file in Partition 2 (named "astrid"). What file type is it?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'A PNG of a QR Code (again)' },
+          { value: 'b', label: 'A JPEG of a QR Code' },
+          { value: 'c', label: 'A stream of bytes impersonating a QR Code' },
+          { value: 'd', label: 'A text file containing the flag with the .jpg extension and PNG magic bytes' }
+        ],
+        answer: 'b'
+      },
+      {
+        id: 'q9',
+        type: 'mc',
+        title: 'Part 2, Step 2: Uncovering the Hidden File',
+        description: "Opening the file, it does not appear to contain the flag. This usually means the flag is hidden in the metadata or using steganography. Look for clues in the setup of the challenge to guide you towards which technique is needed, or use a tool like Aperi'Solve to try many at once! Which technique was used here? Follow the solution and submit the flag in CTFd!",
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'EXIF (Use exiftool)' },
+          { value: 'b', label: 'LSB (Use zsteg/jsteg)' },
+          { value: 'c', label: 'StegHide (Use steghide)' },
+          { value: 'd', label: "BattleSteg (Use DIIT)" }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q10',
+        type: 'freeresponse',
+        title: 'Part 3, Step 1: Carrier Files',
+        description: 'Using your skills from Part 1 Steps 5-6, extract the file in Partition 3 (named "hwk"). How many bytes is the file?',
+        instructions: 'Type your answer in the box below, without units.',
+        answer: ['1405']
+      },
+      {
+        id: 'q11',
+        type: 'checkbox',
+        title: 'Part 3, Step 2: Uncovering the Hidden File (again!)',
+        description: 'This looks significantly larger than our last QR PNG. Which tools detect when one regular file is embedded in another?',
+        instructions: 'Select all that apply.',
+        options: [
+          { value: 'a', label: 'strings' },
+          { value: 'b', label: 'ls' },
+          { value: 'c', label: 'CyberChef (Extract Files block)' },
+          { value: 'd', label: 'fcat' },
+          { value: 'e', label: 'binwalk' }
+        ],
+        answer: ['c', 'e']
+      },
+      {
+        id: 'q12',
+        type: 'mc',
+        title: 'Part 3, Step 3: Extracting the Hidden File',
+        description: 'Using one of the tools from the previous question, extract the hidden file. What type of archive is it? Decompress and submit the flag!',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'ZIP' },
+          { value: 'b', label: 'GZIP' },
+          { value: 'c', label: 'TAR' },
+          { value: 'd', label: 'XZ' }
+        ],
+        answer: 'd'
+      },
+      {
+        id: 'q13',
+        type: 'mc',
+        title: 'Part 4, Step 1: Filesystem Quirks and Recovery',
+        description: 'Filesystems have a few mechanisms to keep the system in a good state, and enable automatic or directed recovery. On partition 4 ("main"), what is "flag@0"? Choose the most specific/best answer.',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'A folder' },
+          { value: 'b', label: 'A journal' },
+          { value: 'c', label: 'A snapshot' },
+          { value: 'd', label: 'A directory' }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q14',
+        type: 'freeresponse',
+        title: 'Part 4, Step 2: Commitment Issues',
+        description: 'It seems like the filesystem had another one of these snapshots, but someone deleted it in a hurry. What btrfs sub-command would have forced the deletion to commit before the drive was removed?',
+        instructions: 'Type your answer in the box below.',
+        answer: ['sync']
+      },
+      {
+        id: 'q15',
+        type: 'mc',
+        title: 'Part 4, Step 3: Retrieving What Was Lost',
+        description: 'Exactly! Often syncing, fstrim, and shred are neglected in deletion. Since this flag was stored in plaintext, and btrfs kept it intact, which classic forensics tool can recover the flag for you to submit on CTFd?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'strings' },
+          { value: 'b', label: 'ping' },
+          { value: 'c', label: 'man' },
+          { value: 'd', label: 'exit' }
+        ],
+        answer: 'a'
+      }
+    ];
+
+    // Which index in `questions` starts each container's render group.
+    // Part 1: q1-q7 (indices 0-6) -> quizPart1
+    // Part 2: q8-q9 (indices 7-8) -> quizPart2
+    // Part 3: q10-q12 (indices 9-11) -> quizPart3
+    // Part 4: q13-q15 (indices 12-14) -> quizPart4
+    const groupBoundaries = [7, 9, 12, questions.length];
+
+    function renderQuestionGroup(group, startIndex) {
+      return group.map((q, i) => {
+        let bodyHtml = '';
+
+        if (q.type === 'mc') {
+          bodyHtml = q.options.map(opt =>
+            `<label><input type="radio" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+          ).join('\n');
+        } else if (q.type === 'checkbox') {
+          bodyHtml = q.options.map(opt =>
+            `<label><input type="checkbox" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+          ).join('\n');
+        } else if (q.type === 'freeresponse') {
+          bodyHtml = `<input type="text" name="${q.id}" class="quiz-text-input" placeholder="Your answer">`;
+        }
+
+        return `
+          <div class="quiz-question" data-question="${q.id}">
+            <p class="quiz-question-title">${q.title}</p>
+            <p class="quiz-description">${q.description}</p>
+            <p class="quiz-instructions">${q.instructions}</p>
+            <div class="quiz-options">
+              ${bodyHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderQuiz() {
+      const group1 = questions.slice(0, groupBoundaries[0]);
+      const group2 = questions.slice(groupBoundaries[0], groupBoundaries[1]);
+      const group3 = questions.slice(groupBoundaries[1], groupBoundaries[2]);
+      const group4 = questions.slice(groupBoundaries[2], groupBoundaries[3]);
+
+      document.getElementById('quizPart1').innerHTML = renderQuestionGroup(group1, 0);
+      document.getElementById('quizPart2').innerHTML = renderQuestionGroup(group2, groupBoundaries[0]);
+      document.getElementById('quizPart3').innerHTML = renderQuestionGroup(group3, groupBoundaries[1]);
+
+      document.getElementById('quizPart4').innerHTML =
+        renderQuestionGroup(group4, groupBoundaries[2]) +
+        `<button type="button" id="quizSubmit" class="quiz-submit">Submit</button>
+         <div id="quizResult" class="quiz-result"></div>`;
+
+      document.getElementById('quizSubmit').addEventListener('click', scoreQuiz);
+    }
+
+    function scoreQuiz() {
+      let score = 0;
+      const total = questions.length;
+
+      document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('incorrect-question');
+      });
+
+      questions.forEach(q => {
+        let isCorrect = false;
+
+        if (q.type === 'mc') {
+          const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+          isCorrect = selected && selected.value === q.answer;
+        } else if (q.type === 'checkbox') {
+          const checked = Array.from(document.querySelectorAll(`input[name="${q.id}"]:checked`)).map(el => el.value);
+          isCorrect =
+            checked.length === q.answer.length &&
+            q.answer.every(val => checked.includes(val));
+        } else if (q.type === 'freeresponse') {
+          const input = document.querySelector(`input[name="${q.id}"]`);
+          const value = input ? input.value.trim().toLowerCase() : '';
+          isCorrect = q.answer.map(a => a.toLowerCase()).includes(value);
+        }
+
+        if (isCorrect) {
+          score++;
+        } else {
+          const questionEl = document.querySelector(`.quiz-question[data-question="${q.id}"]`);
+          if (questionEl) questionEl.classList.add('incorrect-question');
+        }
+      });
+
+      const resultEl = document.getElementById('quizResult');
+
+      // Sorry buddy, there's only one free flag here. You gotta get the rest the old-fashioned way -> Solvin' the challenges!
+      if (score === total) {
+        resultEl.textContent = 'Congratulations! You completed the CDCTF Digital Forensics Training MAT! Here is your flag to enter on the CTFd platform: cdctf{f00rens!k_y!pP33}';
+        resultEl.className = 'quiz-result correct';
+      } else {
+        resultEl.textContent = `You scored ${score} out of ${total}. Incorrect questions are highlighted.`;
+        resultEl.className = 'quiz-result incorrect';
+      }
+    }
+
+    renderQuiz();
+ </script>
+</body>
+</html>

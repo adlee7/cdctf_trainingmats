@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDCTF Network Traffic & Log Analysis Training MAT</title>
+    <link rel="icon" type="image/x-icon" href="favicon1.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #333333;
+            --heading: #111111;
+            --accent: #db2777;
+            --accent-secondary: #6366f1;
+            --intro-bg: #f9fafb;
+            --intro-border: #e5e7eb;
+            --tag-bg: #eef0f3;
+            --tag-text: #333333;
+            --question-border: #dddddd;
+            --incorrect-border: #dc2626;
+            --incorrect-bg: #fef2f2;
+            --table-border: #e5e7eb;
+            --code-bg: #1e1e2e;
+            --code-text: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --text: #e0e0e0;
+            --heading: #ffffff;
+            --accent: #f472b6;
+            --accent-secondary: #a5b4fc;
+            --intro-bg: #1e1e1e;
+            --intro-border: #333333;
+            --tag-bg: #2a2a2a;
+            --tag-text: #e0e0e0;
+            --question-border: #3a3a3a;
+            --incorrect-border: #f87171;
+            --incorrect-bg: #3a1f1f;
+            --table-border: #333333;
+            --code-bg: #0b0b14;
+            --code-text: #e5e7eb;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 0.9rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            color: var(--text);
+            border-radius: 999px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .theme-toggle:hover { border-color: var(--accent); }
+
+        .welcome-banner {
+            max-width: 700px;
+            margin: 2rem auto 0;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            color: #fff;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+        }
+        .welcome-banner h1 { margin: 0 0 0.5rem; font-size: 1.8rem; }
+        .welcome-banner p { margin: 0; font-size: 1rem; opacity: 0.9; }
+
+        .intro {
+            max-width: 700px;
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: var(--text);
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .intro h2 { margin: 0 0 0.75rem; font-size: 1.4rem; color: var(--heading); }
+        .intro p { margin: 0 0 0.75rem; line-height: 1.5; font-size: 0.95rem; }
+        .intro h3 { margin: 1rem 0 0.5rem; font-size: 1.1rem; color: var(--accent); }
+        .intro ul { margin: 0 0 0.5rem; padding-left: 1.25rem; }
+        .intro ul li { margin-bottom: 0.3rem; font-size: 0.95rem; line-height: 1.4; }
+        .intro code {
+            background: var(--tag-bg);
+            color: var(--text);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .intro table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0 1rem;
+            font-size: 0.85rem;
+        }
+        .intro table th, .intro table td {
+            text-align: left;
+            padding: 0.4rem 0.5rem;
+            border-bottom: 1px solid var(--table-border);
+        }
+        .intro table th { color: var(--heading); }
+        .intro .tag {
+            display: inline-block;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            margin: 0.1rem 0.2rem 0.1rem 0;
+        }
+        .intro .placeholder {
+            border: 1px dashed var(--intro-border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-style: italic;
+            opacity: 0.75;
+            color: var(--text);
+        }
+        .intro pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            margin: 0.5rem 0 1rem;
+        }
+        .intro pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+
+        .quiz-container { max-width: 700px; margin: 2rem auto; font-family: Roboto, Arial, Helvetica, sans-serif; }
+        .quiz-question {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--question-border);
+            border-radius: 8px;
+            color: var(--text);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .quiz-question.incorrect-question { border-color: var(--incorrect-border); background-color: var(--incorrect-bg); }
+        .quiz-question-title { font-weight: bold; margin-bottom: 0.4rem; color: var(--heading); }
+        .quiz-description { margin: 0 0 0.3rem; color: var(--text); font-size: 0.95rem; }
+        .quiz-instructions { margin: 0 0 0.6rem; color: var(--text); opacity: 0.7; font-size: 0.85rem; font-style: italic; }
+        .quiz-options label { display: block; margin: 0.4rem 0; cursor: pointer; }
+        .quiz-text-input { width: 100%; padding: 0.5rem; border: 1px solid var(--question-border); border-radius: 4px; font-size: 1rem; box-sizing: border-box; background: var(--bg); color: var(--text); }
+        .quiz-submit { padding: 0.6rem 1.2rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+        .quiz-submit:hover { background: var(--accent-secondary); color: #111; }
+        .quiz-result { margin-top: 1rem; font-weight: bold; }
+        .correct { color: #16a34a; }
+        .incorrect { color: #dc2626; }
+        [data-theme="dark"] .correct { color: #4ade80; }
+        [data-theme="dark"] .incorrect { color: #f87171; }
+    </style>
+</head>
+
+<body>
+ <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+
+ <section class="welcome-banner">
+    <h1>Welcome to the CDCTF Network Traffic & Log Analysis Training MAT</h1>
+    <p>Learn how to read network traffic and system logs, then solve the following challenges to get the flag!</p>
+ </section>
+
+ <section class="intro">
+    <h2>What is Network Traffic Analysis?</h2>
+    <p>Network Traffic Analysis (NTA) is the practice of examining data captured as it moves across a network — typically recorded in a packet capture (pcap) file — to understand what happened, spot suspicious behavior, or recover hidden data. Every packet carries metadata (source/destination IP, port, protocol) and often a payload, and both can hold clues.</p>
+    <p>In a CTF, NTA challenges usually hand you a pcap file and ask you to find something inside it: a file transferred over the wire, credentials sent in the clear, a command-and-control connection, or data hidden in a protocol field.</p>
+    <h3>Common NTA Challenge Types</h3>
+    <ul>
+        <li><strong>Protocol Identification</strong>: Figuring out what protocols are in use and what "normal" traffic looks like for this capture.</li>
+        <li><strong>Conversation Following</strong>: Reconstructing an entire exchange between two hosts (e.g. an HTTP request/response or a TCP stream) to read what was actually sent.</li>
+        <li><strong>File Carving from Traffic</strong>: Extracting a file (image, document, archive) that was transferred across the network.</li>
+        <li><strong>Suspicious Traffic Detection</strong>: Spotting connections to unusual ports, beaconing behavior, or traffic that doesn't match its stated protocol.</li>
+        <li><strong>Payload Decoding</strong>: Recognizing and decoding data that's been encoded (hex, Base64, etc.) within a packet's payload.</li>
+    </ul>
+ </section>
+
+ <section class="intro">
+    <h2>What is Log Analysis?</h2>
+    <p>Log analysis is the practice of reading through system- or application-generated log files to reconstruct events, spot anomalies, or find specific pieces of information. Where NTA looks at what crossed the network, log analysis looks at what a system recorded about its own activity — logins, processes, commands, errors, and more.</p>
+    <p>In a CTF, log analysis challenges usually hand you a (often large) text log file and ask you to filter, search, and summarize it to answer a question — which is exactly the kind of task the Linux command line excels at.</p>
+    <h3>Common Log Analysis Challenge Types</h3>
+    <ul>
+        <li><strong>Brute Force Detection</strong>: Counting repeated failed attempts to spot an attacker and the account or service they targeted.</li>
+        <li><strong>Timeline Reconstruction</strong>: Ordering events by timestamp to understand the sequence of an incident.</li>
+        <li><strong>Indicator Extraction</strong>: Pulling out IP addresses, usernames, or hostnames associated with suspicious activity.</li>
+        <li><strong>Encoded Data Recovery</strong>: Spotting and decoding Base64 or other encoded strings that have been logged, intentionally or not.</li>
+    </ul>
+ </section>
+
+ <section class="intro">
+    <h2>Toolbox</h2>
+    <p>This MAT doesn't include an actual packet capture file to open, so we won't be using Wireshark directly here — but it's the single most important tool for real NTA challenges, and you should get comfortable with it if you want to do more CTFs. The resources below will get you started.</p>
+
+    <h3>Wireshark (Essential — Not Used in This MAT)</h3>
+    <ul>
+        <li><strong><a href="https://www.wireshark.org/" target="_blank" rel="noopener noreferrer">Wireshark</a></strong>: The standard graphical tool for opening and analyzing pcap files, with powerful filtering, stream-following, and file-export features.</li>
+        <li><strong><a href="https://www.wireshark.org/docs/wsug_html_chunked/ChapterIntroduction.html" target="_blank" rel="noopener noreferrer">Wireshark User's Guide — Introduction</a></strong>: The official getting-started chapter; walks through installing Wireshark and capturing or opening your first file.</li>
+        <li><strong><a href="https://www.wireshark.org/docs/wsug_html_chunked/ChapterWork.html" target="_blank" rel="noopener noreferrer">Working With Captured Packets</a></strong>: Official guide section covering filtering, following streams, and exporting objects — the core skills for CTF-style NTA.</li>
+        <li><strong><a href="https://www.wireshark.org/docs/dfref/" target="_blank" rel="noopener noreferrer">Display Filter Reference</a></strong>: The official reference for Wireshark's filter syntax (e.g. <code>http</code>, <code>dns</code>, <code>tcp.port == 4444</code>).</li>
+    </ul>
+
+    <h3>Command-Line Network Tools</h3>
+    <ul>
+        <li><strong><a href="https://www.tcpdump.org/manpages/tcpdump.1.html" target="_blank" rel="noopener noreferrer">tcpdump</a></strong>: A command-line packet capture and filtering tool, useful when a GUI isn't available.</li>
+        <li><strong><a href="https://www.wireshark.org/docs/man-pages/tshark.html" target="_blank" rel="noopener noreferrer">tshark</a></strong>: Wireshark's command-line counterpart, useful for scripting or quick filtering without the GUI.</li>
+        <li><strong><a href="https://www.netresec.com/?page=NetworkMiner" target="_blank" rel="noopener noreferrer">NetworkMiner</a></strong>: A network forensics tool that automatically extracts files, credentials, and sessions from a pcap.</li>
+    </ul>
+
+    <h3>Log Analysis Tools</h3>
+    <ul>
+        <li><strong><a href="https://man7.org/linux/man-pages/man1/grep.1.html" target="_blank" rel="noopener noreferrer">grep</a></strong>: Searches text for lines matching a pattern — the workhorse of CLI log analysis.</li>
+        <li><strong><a href="https://www.gnu.org/software/gawk/manual/gawk.html" target="_blank" rel="noopener noreferrer">awk</a></strong>: A pattern-scanning and text-processing language, great for pulling out specific columns/fields from structured log lines.</li>
+        <li><strong><a href="https://www.gnu.org/software/sed/manual/sed.html" target="_blank" rel="noopener noreferrer">sed</a></strong>: A stream editor for searching and transforming text, often used alongside grep and awk.</li>
+        <li><strong><a href="https://man7.org/linux/man-pages/man1/sort.1.html" target="_blank" rel="noopener noreferrer">sort</a></strong> &amp; <strong><a href="https://man7.org/linux/man-pages/man1/uniq.1.html" target="_blank" rel="noopener noreferrer">uniq</a></strong>: Commonly chained together (<code>sort | uniq -c</code>) to count how often each distinct line or value appears.</li>
+        <li><strong><a href="https://man7.org/linux/man-pages/man1/journalctl.1.html" target="_blank" rel="noopener noreferrer">journalctl</a></strong>: Queries the systemd journal on modern Linux systems, useful if you're handed a live system rather than a flat log file.</li>
+        <li><strong><a href="https://jqlang.github.io/jq/manual/" target="_blank" rel="noopener noreferrer">jq</a></strong>: A command-line JSON processor, useful when logs are structured as JSON rather than plain text.</li>
+        <li><strong><a href="https://man7.org/linux/man-pages/man1/base64.1.html" target="_blank" rel="noopener noreferrer">base64</a></strong>: Encodes and decodes Base64 data directly from the command line (<code>base64 -d</code> to decode).</li>
+    </ul>
+ </section>
+
+ <section class="intro">
+    <h2>Part 1: Network Traffic Analysis</h2>
+    <p>Below is a simplified, text-based rendering of a packet capture — the same kind of summary you'd see in Wireshark's packet list pane, just without the GUI. Use it to answer the questions that follow.</p>
+    <h3>Challenge Description</h3>
+    <p class="placeholder">A Crimson Defense server was hit recently by a cyber attack! Using the network traffic information below, figure out what Secret the attacker stole!</p>
+    <h3>Captured Traffic Log</h3>
+    <pre><code>No.  Time        Source           Destination      Protocol  Length  Info
+1    0.000000    192.168.1.50     203.0.113.42     TCP       74      51515 &gt; 80 [SYN]
+2    0.000892    203.0.113.42     192.168.1.50     TCP       74      80 &gt; 51515 [SYN, ACK]
+3    0.001015    192.168.1.50     203.0.113.42     HTTP      612     GET /login.php HTTP/1.1
+4    0.045210    203.0.113.42     192.168.1.50     HTTP      350     HTTP/1.1 200 OK
+5    12.332001   192.168.1.50     198.51.100.23    DNS       78      Standard query A exfil.example.net
+6    12.333500   198.51.100.23    192.168.1.50     DNS       94      Standard query response A 198.51.100.99
+7    15.501233   192.168.1.50     198.51.100.99    TCP       66      53412 &gt; 4444 [SYN]
+8    15.502890   198.51.100.99    192.168.1.50     TCP       66      4444 &gt; 53412 [SYN, ACK]
+9    15.504012   192.168.1.50     198.51.100.99    TCP       102     Data: 63646374667b7034636b33745f7033656b346230307d
+10   15.601233   198.51.100.99    192.168.1.50     TCP       66      4444 &gt; 53412 [FIN, ACK]</code></pre>
+ </section>
+
+ <!-- Quiz Part 1: q1–q5 -->
+ <section class="quiz-container" id="quizPart1"></section>
+
+ <section class="intro">
+    <h2>Before You Continue</h2>
+    <p>Nice work pulling data out of individual packets. Log analysis works a little differently: instead of reading structured fields packet-by-packet, you're usually scanning large volumes of plain text for patterns — which is where command-line tools like <code>grep</code> and <code>awk</code> really shine.</p>
+ </section>
+
+ <section class="intro">
+    <h2>Part 2: Linux CLI Log Analysis</h2>
+    <p>Below is a simplified excerpt from a fictional server's authentication log (<code>auth.log</code>), the kind of file you'd normally search through with <code>grep</code>, <code>awk</code>, and friends rather than opening in a text editor.</p>
+    <h3>Challenge Description</h3>
+    <p class="placeholder">A Crimson Defense server auth log shows some suspicious traffic. Can you find out what data the perpetrator exfiltrated?</p>
+    <h3>auth.log Excerpt</h3>
+    <pre><code>Jan 12 03:14:02 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:05 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:09 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:13 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:17 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:21 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:25 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:29 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:33 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:14:37 webserver sshd[1021]: Failed password for root from 203.0.113.77 port 52344 ssh2
+Jan 12 03:15:12 webserver sshd[1022]: Failed password for admin from 198.51.100.14 port 40110 ssh2
+Jan 12 03:15:41 webserver sshd[1023]: Accepted password for root from 203.0.113.77 port 52390 ssh2
+Jan 12 03:15:41 webserver sshd[1023]: pam_unix(sshd:session): session opened for user root by (uid=0)
+Jan 12 03:16:02 webserver bash[1050]: HISTORY: PID=1050 UID=0 echo Y2RjdGZ7bDBnXzFuX3RoM19mbDRnfQ==
+Jan 12 03:16:10 webserver sshd[1023]: pam_unix(sshd:session): session closed for user root</code></pre>
+ </section>
+
+ <!-- Quiz Part 2: q6–q10, submit button, and result -->
+ <section class="quiz-container" id="quizPart2"></section>
+
+ <script>
+    // ----- Dark mode toggle -----
+    const themeToggle = document.getElementById('themeToggle');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️ Light Mode';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙 Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('cdctf-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      applyTheme(newTheme);
+      localStorage.setItem('cdctf-theme', newTheme);
+    });
+
+    // ----- Quiz -----
+    const questions = [
+      {
+        id: 'q1',
+        type: 'mc',
+        title: 'Step 1: Identifying Protocols',
+        description: 'Looking at packets 5 and 6 in the captured traffic log, which protocol is in use?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'HTTP' },
+          { value: 'b', label: 'DNS' },
+          { value: 'c', label: 'TCP' },
+          { value: 'd', label: 'FTP' }
+        ],
+        answer: 'b'
+      },
+      {
+        id: 'q2',
+        type: 'mc',
+        title: 'Step 2: Spotting Suspicious Traffic',
+        description: 'Packets 7–10 show a connection from 192.168.1.50 to port 4444 on 198.51.100.99. What does a connection to a high, non-standard port like this most likely indicate?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'Normal web browsing traffic' },
+          { value: 'b', label: 'A routine DNS lookup' },
+          { value: 'c', label: 'A possible reverse shell or command-and-control connection' },
+          { value: 'd', label: 'An encrypted email transfer' }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q3',
+        type: 'freeresponse',
+        title: 'Step 3: Identifying the Destination',
+        description: 'What is the destination IP address involved in the suspicious connection on port 4444?',
+        instructions: 'Type your answer in the box below.',
+        answer: ['198.51.100.99']
+      },
+      {
+        id: 'q4',
+        type: 'mc',
+        title: 'Step 4: Choosing a Decoding Method',
+        description: 'Packet 9 contains a "Data" field made up of hex-looking characters. In Wireshark, you could right-click the bytes and choose "Copy as Hex Stream", then decode them elsewhere. Which approach would correctly turn this hex data back into readable text?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: "CyberChef's \"From Hex\" operation, or the command xxd -r -p" },
+          { value: 'b', label: 'base64 -d' },
+          { value: 'c', label: 'gunzip' },
+          { value: 'd', label: 'md5sum' }
+        ],
+        answer: 'a'
+      },
+      {
+        id: 'q5',
+        type: 'freeresponse',
+        title: 'Step 5: Decoding the Payload',
+        description: 'Decode the hex data from packet 9 back into text and submit the resulting flag.',
+        instructions: 'Type your answer in the box below.',
+        answer: ['cdctf{p4ck3t_p3ek4b00}']
+      },
+      {
+        id: 'q6',
+        type: 'mc',
+        title: 'Step 6: Choosing a Log Analysis Command',
+        description: 'You want to isolate every line in auth.log that mentions failed login attempts from a specific IP address. Which command is best suited to this?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'top' },
+          { value: 'b', label: 'grep' },
+          { value: 'c', label: 'ping' },
+          { value: 'd', label: 'ps' }
+        ],
+        answer: 'b'
+      },
+      {
+        id: 'q7',
+        type: 'freeresponse',
+        title: 'Step 7: Counting Failed Attempts',
+        description: 'Using a command like <code>grep "Failed password.*203.0.113.77" auth.log | wc -l</code>, how many failed password attempts came from 203.0.113.77 before the successful login?',
+        instructions: 'Type your answer in the box below, as a number.',
+        answer: ['10']
+      },
+      {
+        id: 'q8',
+        type: 'mc',
+        title: 'Step 8: Isolating a Field',
+        description: "Each failed-password line follows the same structure, with the source IP always appearing right after the word \"from\". Which tool is best suited to pull out just that one field from every matching line?",
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'awk' },
+          { value: 'b', label: 'ping' },
+          { value: 'c', label: 'top' },
+          { value: 'd', label: 'man' }
+        ],
+        answer: 'a'
+      },
+      {
+        id: 'q9',
+        type: 'mc',
+        title: 'Step 9: Spotting Encoded Data',
+        description: 'Right after the successful login, a bash history entry was logged containing a string that ends in "==". Which encoding does this pattern typically indicate?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'Hexadecimal' },
+          { value: 'b', label: 'Base64' },
+          { value: 'c', label: 'ROT13' },
+          { value: 'd', label: 'URL encoding' }
+        ],
+        answer: 'b'
+      },
+      {
+        id: 'q10',
+        type: 'freeresponse',
+        title: 'Step 10: Decoding the Flag',
+        description: 'Using a command like <code>echo "Y2RjdGZ7bDBnXzFuX3RoM19mbDRnfQ==" | base64 -d</code>, decode the string from the HISTORY line and submit the resulting flag.',
+        instructions: 'Type your answer in the box below.',
+        answer: ['cdctf{l0g_1n_th3_fl4g}']
+      }
+    ];
+
+    const groupBoundaries = [5, questions.length];
+
+    function renderQuestionGroup(group, startIndex) {
+      return group.map((q, i) => {
+        let bodyHtml = '';
+
+        if (q.type === 'mc') {
+          bodyHtml = q.options.map(opt =>
+            `<label><input type="radio" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+          ).join('\n');
+        } else if (q.type === 'checkbox') {
+          bodyHtml = q.options.map(opt =>
+            `<label><input type="checkbox" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+          ).join('\n');
+        } else if (q.type === 'freeresponse') {
+          bodyHtml = `<input type="text" name="${q.id}" class="quiz-text-input" placeholder="Your answer">`;
+        }
+
+        return `
+          <div class="quiz-question" data-question="${q.id}">
+            <p class="quiz-question-title">${q.title}</p>
+            <p class="quiz-description">${q.description}</p>
+            <p class="quiz-instructions">${q.instructions}</p>
+            <div class="quiz-options">
+              ${bodyHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderQuiz() {
+      const group1 = questions.slice(0, groupBoundaries[0]);
+      const group2 = questions.slice(groupBoundaries[0], groupBoundaries[1]);
+
+      document.getElementById('quizPart1').innerHTML = renderQuestionGroup(group1, 0);
+
+      document.getElementById('quizPart2').innerHTML =
+        renderQuestionGroup(group2, groupBoundaries[0]) +
+        `<button type="button" id="quizSubmit" class="quiz-submit">Submit</button>
+         <div id="quizResult" class="quiz-result"></div>`;
+
+      document.getElementById('quizSubmit').addEventListener('click', scoreQuiz);
+    }
+
+    function scoreQuiz() {
+      let score = 0;
+      const total = questions.length;
+
+      document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('incorrect-question');
+      });
+
+      questions.forEach(q => {
+        let isCorrect = false;
+
+        if (q.type === 'mc') {
+          const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+          isCorrect = selected && selected.value === q.answer;
+        } else if (q.type === 'checkbox') {
+          const checked = Array.from(document.querySelectorAll(`input[name="${q.id}"]:checked`)).map(el => el.value);
+          isCorrect =
+            checked.length === q.answer.length &&
+            q.answer.every(val => checked.includes(val));
+        } else if (q.type === 'freeresponse') {
+          const input = document.querySelector(`input[name="${q.id}"]`);
+          const value = input ? input.value.trim().toLowerCase() : '';
+          isCorrect = q.answer.map(a => a.toLowerCase()).includes(value);
+        }
+
+        if (isCorrect) {
+          score++;
+        } else {
+          const questionEl = document.querySelector(`.quiz-question[data-question="${q.id}"]`);
+          if (questionEl) questionEl.classList.add('incorrect-question');
+        }
+      });
+
+      const resultEl = document.getElementById('quizResult');
+
+      if (score === total) {
+        resultEl.textContent = 'Congratulations! You completed the CDCTF Network Traffic & Log Analysis Training MAT! Here is your flag to enter on the CTFd platform: cdctf{N3tty_@nd_L0ggY!}';
+        resultEl.className = 'quiz-result correct';
+      } else {
+        resultEl.textContent = `You scored ${score} out of ${total}. Incorrect questions are highlighted.`;
+        resultEl.className = 'quiz-result incorrect';
+      }
+    }
+
+    renderQuiz();
+ </script>
+</body>
+</html>
