@@ -81,6 +81,36 @@
         .welcome-banner h1 { margin: 0 0 0.5rem; font-size: 1.8rem; }
         .welcome-banner p { margin: 0; font-size: 1rem; opacity: 0.9; }
 
+        .warning {
+            max-width: 600px;
+            margin: 1.5rem auto;
+            padding: 1.25rem 1.5rem;
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-left: 5px solid #f59e0b;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: #78350f;
+        }
+        .warning h2 {
+            margin: 0 0 0.5rem;
+            font-size: 1.15rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .warning p { margin: 0 0 0.6rem; line-height: 1.5; font-size: 0.9rem; }
+        .warning p:last-child { margin-bottom: 0; }
+        .warning strong { color: #92400e; }
+        [data-theme="dark"] .warning {
+            background: #2d2410;
+            border-color: #d97706;
+            color: #fde68a;
+        }
+        [data-theme="dark"] .warning h2 { color: #fbbf24; }
+        [data-theme="dark"] .warning strong { color: #fbbf24; }
+
         .intro {
             max-width: 700px;
             margin: 1.5rem auto;
@@ -185,6 +215,13 @@
     <h1>Welcome to the CDCTF Password Cracking Training MAT</h1>
     <p>Learn about hashes, hash types, and the basics of hashcat, then solve the following challenges to get the flag!</p>
  </section>
+
+ <section class="warning">
+    <h2>⚠️ Before You Begin</h2>
+    <p><strong>Every flag you recover while working through this MAT — from each individual challenge step as well as the one awarded for completing the full quiz — must be submitted separately to the CDCTF CTFd platform.</strong></p>
+    
+    <p>There are <strong>3 total</strong> flags to submit in the CTFd platform for credit.</p>
+</section>
 
  <section class="intro">
     <h2>What is Password Cracking?</h2>
