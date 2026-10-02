@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDCTF Reverse Engineering & Pwn Training MAT</title>
+    <link rel="icon" type="image/x-icon" href="favicon1.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #333333;
+            --heading: #111111;
+            --accent: #a21caf;
+            --accent-secondary: #4d7c0f;
+            --intro-bg: #f9fafb;
+            --intro-border: #e5e7eb;
+            --tag-bg: #eef0f3;
+            --tag-text: #333333;
+            --question-border: #dddddd;
+            --incorrect-border: #dc2626;
+            --incorrect-bg: #fef2f2;
+            --table-border: #e5e7eb;
+            --code-bg: #1e1e2e;
+            --code-text: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --text: #e0e0e0;
+            --heading: #ffffff;
+            --accent: #e879f9;
+            --accent-secondary: #bef264;
+            --intro-bg: #1e1e1e;
+            --intro-border: #333333;
+            --tag-bg: #2a2a2a;
+            --tag-text: #e0e0e0;
+            --question-border: #3a3a3a;
+            --incorrect-border: #f87171;
+            --incorrect-bg: #3a1f1f;
+            --table-border: #333333;
+            --code-bg: #0b0b14;
+            --code-text: #e5e7eb;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 0.9rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            color: var(--text);
+            border-radius: 999px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .theme-toggle:hover { border-color: var(--accent); }
+
+        .welcome-banner {
+            max-width: 700px;
+            margin: 2rem auto 0;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            color: #fff;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+        }
+        .welcome-banner h1 { margin: 0 0 0.5rem; font-size: 1.8rem; }
+        .welcome-banner p { margin: 0; font-size: 1rem; opacity: 0.9; }
+
+        .warning {
+            max-width: 700px;
+            margin: 1.5rem auto;
+            padding: 1.25rem 1.5rem;
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-left: 5px solid #f59e0b;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: #78350f;
+        }
+        .warning h2 {
+            margin: 0 0 0.5rem;
+            font-size: 1.15rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .warning p { margin: 0 0 0.6rem; line-height: 1.5; font-size: 0.9rem; }
+        .warning p:last-child { margin-bottom: 0; }
+        .warning strong { color: #92400e; }
+        [data-theme="dark"] .warning {
+            background: #2d2410;
+            border-color: #d97706;
+            color: #fde68a;
+        }
+        [data-theme="dark"] .warning h2 { color: #fbbf24; }
+        [data-theme="dark"] .warning strong { color: #fbbf24; }
+
+        .intro {
+            max-width: 700px;
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: var(--text);
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .intro h2 { margin: 0 0 0.75rem; font-size: 1.4rem; color: var(--heading); }
+        .intro p { margin: 0 0 0.75rem; line-height: 1.5; font-size: 0.95rem; }
+        .intro h3 { margin: 1rem 0 0.5rem; font-size: 1.1rem; color: var(--accent); }
+        .intro ul { margin: 0 0 0.5rem; padding-left: 1.25rem; }
+        .intro ul li { margin-bottom: 0.3rem; font-size: 0.95rem; line-height: 1.4; }
+        .intro code {
+            background: var(--tag-bg);
+            color: var(--text);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .intro table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0 1rem;
+            font-size: 0.85rem;
+        }
+        .intro table th, .intro table td {
+            text-align: left;
+            padding: 0.4rem 0.5rem;
+            border-bottom: 1px solid var(--table-border);
+        }
+        .intro table th { color: var(--heading); }
+        .intro .tag {
+            display: inline-block;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            margin: 0.1rem 0.2rem 0.1rem 0;
+        }
+        .intro .placeholder {
+            border: 1px dashed var(--intro-border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-style: italic;
+            opacity: 0.75;
+            color: var(--text);
+        }
+        .intro pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            margin: 0.5rem 0 1rem;
+        }
+        .intro pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+
+        .quiz-container { max-width: 700px; margin: 2rem auto; font-family: Roboto, Arial, Helvetica, sans-serif; }
+        .quiz-question {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--question-border);
+            border-radius: 8px;
+            color: var(--text);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .quiz-question.incorrect-question { border-color: var(--incorrect-border); background-color: var(--incorrect-bg); }
+        .quiz-question-title { font-weight: bold; margin-bottom: 0.4rem; color: var(--heading); }
+        .quiz-description { margin: 0 0 0.3rem; color: var(--text); font-size: 0.95rem; }
+        .quiz-instructions { margin: 0 0 0.6rem; color: var(--text); opacity: 0.7; font-size: 0.85rem; font-style: italic; }
+        .quiz-options label { display: block; margin: 0.4rem 0; cursor: pointer; }
+        .quiz-question code {
+            background: var(--tag-bg);
+            color: var(--text);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .quiz-text-input { width: 100%; padding: 0.5rem; border: 1px solid var(--question-border); border-radius: 4px; font-size: 1rem; box-sizing: border-box; background: var(--bg); color: var(--text); }
+        .quiz-submit { padding: 0.6rem 1.2rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+        .quiz-submit:hover { background: var(--accent-secondary); }
+        .quiz-result { margin-top: 1rem; font-weight: bold; }
+        .correct { color: #16a34a; }
+        .incorrect { color: #dc2626; }
+        [data-theme="dark"] .correct { color: #4ade80; }
+        [data-theme="dark"] .incorrect { color: #f87171; }
+    </style>
+</head>
+
+<body>
+ <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+
+ <section class="welcome-banner">
+    <h1>Welcome to the CDCTF Reverse Engineering & Pwn Training MAT</h1>
+    <p>Learn how to analyze programs and exploit them, then solve the following challenges to get the flag!</p>
+ </section>
+
+ <section class="warning">
+    <h2>⚠️ Before You Begin</h2>
+        <p><strong>Every flag you recover while working through this MAT — from each individual challenge step as well as the one awarded for completing the full quiz — must be submitted separately to the CDCTF CTFd platform.</strong></p>
+    
+        <p>There are <strong>3 total</strong> flags to submit in the CTFd platform for credit.</p>
+ </section>
+
+ <section class="intro">
+    <h2>What is Reverse Engineering & Pwn?</h2>
+    <p><strong>Reverse engineering (RE)</strong> is the process of figuring out what a program does without having its source code — by reading its logic, whether that's a readable script or a compiled binary, and working out what transformations it applies to its input.</p>
+    <p><strong>Binary exploitation (pwn)</strong> goes a step further: instead of just understanding a program, you find a flaw in how it handles memory or input and use that flaw to make it do something it wasn't supposed to — anything from leaking data to hijacking its execution entirely.</p>
+    <p>These two skills are usually grouped together because they share the same starting point: reading and understanding a program's logic. A reversing challenge often ends once you understand the code well enough to compute an answer; a pwn challenge usually begins right there, using that understanding to craft an exploit.</p>
+    <h3>Common Challenge Types</h3>
+    <ul>
+        <li><strong>Script / Bytecode Reversing</strong>: Working out the logic of a program written in a scripting or interpreted language, often readable with little more than careful reading and some scratch-paper math.</li>
+        <li><strong>Static Binary Analysis</strong>: Disassembling or decompiling a compiled binary to read its logic without ever running it.</li>
+        <li><strong>Dynamic Analysis</strong>: Running a binary under a debugger to observe its behavior, inspect memory, and test hypotheses about what it's doing.</li>
+        <li><strong>Memory Corruption (Pwn)</strong>: Exploiting bugs like buffer overflows to overwrite memory and redirect a program's execution.</li>
+        <li><strong>Exploit Scripting</strong>: Automating the delivery of a crafted exploit against a remote service, typically with a library like pwntools.</li>
+    </ul>
+ </section>
+
+ <section class="intro">
+    <h2>Toolbox</h2>
+    <h3>Reverse Engineering Tools</h3>
+    <ul>
+        <li><strong><a href="https://ghidra-sre.org/" target="_blank" rel="noopener noreferrer">Ghidra</a></strong>: A free, NSA-developed software reverse engineering suite with a powerful decompiler, widely used as the default choice for CTF binary analysis.</li>
+        <li><strong><a href="https://hex-rays.com/ida-free/" target="_blank" rel="noopener noreferrer">IDA Free</a></strong>: A free edition of the industry-standard disassembler/decompiler, IDA Pro.</li>
+        <li><strong><a href="https://dogbolt.org/" target="_blank" rel="noopener noreferrer">dogbolt.org</a></strong>: A free online service that runs an uploaded binary through several different decompilers at once and lets you compare their output side by side — no local install required.</li>
+        <li><strong><a href="https://cutter.re/" target="_blank" rel="noopener noreferrer">Cutter</a></strong> (built on <a href="https://rada.re/n/" target="_blank" rel="noopener noreferrer">radare2</a>): A free, open-source reverse engineering platform with a graphical interface.</li>
+    </ul>
+    <h3>Pwn Tools</h3>
+    <ul>
+        <li><strong><a href="https://sourceware.org/gdb/documentation/" target="_blank" rel="noopener noreferrer">GDB</a></strong>: The standard command-line debugger on Linux, essential for dynamic analysis and exploit development.</li>
+        <li><strong><a href="https://docs.pwntools.com/en/stable/" target="_blank" rel="noopener noreferrer">pwntools</a></strong>: A Python library purpose-built for writing and automating exploits against CTF-style binaries and remote services.</li>
+        <li><strong><a href="https://github.com/slimm609/checksec.sh" target="_blank" rel="noopener noreferrer">checksec</a></strong>: Quickly reports which binary protections (stack canaries, ASLR, NX, PIE) are enabled on a target — useful for scoping out a pwn challenge before you dive in.</li>
+    </ul>
+ </section>
+
+ <section class="intro">
+    <h2>Challenge 1: Skippy</h2>
+    <p>This challenge is a script-based reversing exercise — read through the program's logic carefully to understand how it builds its output from a secret input before trying to reverse it.</p>
+    <h3>Challenge File</h3>
+    <p>Use <code>skippy.py</code></p>
+ </section>
+
+ <!-- Quiz Part 1: q1–q4 (Skippy) -->
+ <section class="quiz-container" id="quizPart1"></section>
+
+ <section class="intro">
+    <h2>Before You Continue</h2>
+    <p>Skippy was readable source — the next challenge is a compiled binary, so you won't be able to just read the logic directly. This is where a decompiler like dogbolt.org or Ghidra earns its keep.</p>
+ </section>
+
+ <section class="intro">
+    <h2>Challenge 2: Static</h2>
+    <p>This challenge is a compiled binary — use a decompiler to turn it into something closer to readable source before trying to work out how it checks its input.</p>
+    <h3>Challenge File</h3>
+    <p>Use <code>static</code></p>
+ </section>
+
+ <!-- Quiz Part 2: q5–q8 (Static), submit button, and result -->
+ <section class="quiz-container" id="quizPart2"></section>
+
+ <script>
+    // ----- Dark mode toggle -----
+    const themeToggle = document.getElementById('themeToggle');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️ Light Mode';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙 Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('cdctf-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      applyTheme(newTheme);
+      localStorage.setItem('cdctf-theme', newTheme);
+    });
+
+    // ----- Quiz -----
+    const questions = [
+      {
+        id: 'q1',
+        type: 'mc',
+        title: 'Skippy - Step 1: What does it do?',
+        description: 'To reverse the program, one must first understand the program. I think Sun Tzu said that. In our case, what happens to the "Secret" input?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'It is added character-wise to the shuffled alphabet' },
+          { value: 'b', label: 'It is XORed to encrypt the shuffled alphabet' },
+          { value: 'c', label: 'It is distributed throughout the shuffled alphabet' },
+          { value: 'd', label: 'It is Base64 encoded using the alphabet' }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q2',
+        type: 'mc',
+        title: 'Skippy - Step 2: What does it do? Electric Boogaloo',
+        description: 'That went pretty well! Likewise, what does the "A" input determine? Choose the best answer.',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'The distance between Secret characters' },
+          { value: 'b', label: 'The number of contiguous Secret characters' },
+          { value: 'c', label: 'The value added to each Secret character before insertion' },
+          { value: 'd', label: 'The shift applied to the alphabet before insertion' }
+        ],
+        answer: 'a'
+      },
+      {
+        id: 'q3',
+        type: 'freeresponse',
+        title: 'Skippy - Step 3: Identifying Useful Constants',
+        description: 'The next most important part of reverse engineering is finding the secrets that put the flag in the challenge. Which variable stores the encrypted flag here?',
+        instructions: 'Type your answer in the box below.',
+        answer: ['test_result_del_for_prod']
+      },
+      {
+        id: 'q4',
+        type: 'checkbox',
+        title: 'Skippy - Step 4: Wise-cracking',
+        description: "Reverse engineering occasionally requires some amount of guess-and-check. Other times, it can be solved directly. Which of the below strategies are the most time-efficient to recover the flag? Follow their advice and submit the flag on CTFd!",
+        instructions: 'Select all that apply.',
+        options: [
+          { value: 'a', label: 'Shuffle the alphabet until we get the same permutation, the different characters are the flag.' },
+          { value: 'b', label: "Try all len(alphabet) values for A and select every A'th character from the encrypted flag." },
+          { value: 'c', label: 'Look for evenly-spaced c, d, c, t, f characters and solve for A, then select every A\'th character' },
+          { value: 'd', label: 'Search all subsequences of len(alphabet) concatenated replications of the encrypted flag for the plaintext flag' }
+        ],
+        answer: ['b', 'c']
+      },
+      {
+        id: 'q5',
+        type: 'mc',
+        title: 'Static - Step 1: What does it do? The Return of the King',
+        description: 'What can be frustrating about binary reverse engineering is how much more opaque it is than scripts. Try to run static. For any input other than the flag, what does the program do?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'Display helpful usage text' },
+          { value: 'b', label: 'Print "FAIL"' },
+          { value: 'c', label: 'Display the difference between the processed input and expected value' },
+          { value: 'd', label: 'Return an exit code of 1' }
+        ],
+        answer: ['d']
+      },
+      {
+        id: 'q6',
+        type: 'freeresponse',
+        title: 'Static - Step 2: Peeking Inside',
+        description: 'Thankfully, we have tools that try to turn black-box binary reverse engineering into something close to the source code - decompilers! Upload the binary to dogbolt.org (or use a local decompiler) to take a peek inside. How many characters does the input have to be to pass the first check?',
+        instructions: 'Type your answer in the box below.',
+        answer: ['24']
+      },
+      {
+        id: 'q7',
+        type: 'checkbox',
+        title: 'Static - Step 3: Identifying Useful Constants',
+        description: 'Knowing this, which two variables are needed to recover the flag (that is, the input that would cause the program to print "Correct!")?',
+        instructions: 'Select all that apply.',
+        options: [
+          { value: 'a', label: 'main' },
+          { value: 'b', label: 'cheque' },
+          { value: 'c', label: 'arg_c' },
+          { value: 'd', label: 'len' },
+          { value: 'e', label: 'key' },
+          { value: 'f', label: 'i' },
+          { value: 'g', label: 'flag' }
+        ],
+        answer: ['b', 'e']
+      },
+      {
+        id: 'q8',
+        type: 'freeresponse',
+        title: 'Static - Step 4: Recovering the Flag',
+        description: 'After recovering these variables, what operation can they be combined with to recover the original flag? Name the operation below, apply that operation, and submit the flag on CTFd.',
+        instructions: 'Type your answer in the box below.',
+        answer: ['xor']
+      }
+    ];
+
+    const groupBoundaries = [4, questions.length];
+
+    function renderQuestionGroup(group, startIndex) {
+      return group.map((q, i) => {
+        let bodyHtml = '';
+
+        if (q.type === 'mc') {
+          bodyHtml = q.options.map(opt =>
+            `<label><input type="radio" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+          ).join('\n');
+        } else if (q.type === 'checkbox') {
+          bodyHtml = q.options.map(opt =>
+            `<label><input type="checkbox" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+          ).join('\n');
+        } else if (q.type === 'freeresponse') {
+          bodyHtml = `<input type="text" name="${q.id}" class="quiz-text-input" placeholder="Your answer">`;
+        }
+
+        return `
+          <div class="quiz-question" data-question="${q.id}">
+            <p class="quiz-question-title">${q.title}</p>
+            <p class="quiz-description">${q.description}</p>
+            <p class="quiz-instructions">${q.instructions}</p>
+            <div class="quiz-options">
+              ${bodyHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderQuiz() {
+      const group1 = questions.slice(0, groupBoundaries[0]);
+      const group2 = questions.slice(groupBoundaries[0], groupBoundaries[1]);
+
+      document.getElementById('quizPart1').innerHTML = renderQuestionGroup(group1, 0);
+
+      document.getElementById('quizPart2').innerHTML =
+        renderQuestionGroup(group2, groupBoundaries[0]) +
+        `<button type="button" id="quizSubmit" class="quiz-submit">Submit</button>
+         <div id="quizResult" class="quiz-result"></div>`;
+
+      document.getElementById('quizSubmit').addEventListener('click', scoreQuiz);
+    }
+
+    function scoreQuiz() {
+      let score = 0;
+      const total = questions.length;
+
+      document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('incorrect-question');
+      });
+
+      questions.forEach(q => {
+        let isCorrect = false;
+
+        if (q.type === 'mc') {
+          const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+          isCorrect = selected && selected.value === q.answer;
+        } else if (q.type === 'checkbox') {
+          const checked = Array.from(document.querySelectorAll(`input[name="${q.id}"]:checked`)).map(el => el.value);
+          isCorrect =
+            checked.length === q.answer.length &&
+            q.answer.every(val => checked.includes(val));
+        } else if (q.type === 'freeresponse') {
+          const input = document.querySelector(`input[name="${q.id}"]`);
+          const value = input ? input.value.trim().toLowerCase() : '';
+          isCorrect = q.answer.map(a => a.toLowerCase()).includes(value);
+        }
+
+        if (isCorrect) {
+          score++;
+        } else {
+          const questionEl = document.querySelector(`.quiz-question[data-question="${q.id}"]`);
+          if (questionEl) questionEl.classList.add('incorrect-question');
+        }
+      });
+
+      const resultEl = document.getElementById('quizResult');
+
+      if (score === total) {
+        resultEl.textContent = 'Congratulations! You completed the CDCTF Reverse Engineering & Pwn Training MAT! Here is your flag to enter on the CTFd platform: cdctf{R2vv1n_!t_UP!}';
+        resultEl.className = 'quiz-result correct';
+      } else {
+        resultEl.textContent = `You scored ${score} out of ${total}. Incorrect questions are highlighted.`;
+        resultEl.className = 'quiz-result incorrect';
+      }
+    }
+
+    renderQuiz();
+ </script>
+</body>
+</html>
