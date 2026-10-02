@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDCTF Cryptography Training MAT</title>
+    <link rel="icon" type="image/x-icon" href="favicon1.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #333333;
+            --heading: #111111;
+            --accent: #0e7490;
+            --accent-secondary: #475569;
+            --intro-bg: #f9fafb;
+            --intro-border: #e5e7eb;
+            --tag-bg: #eef0f3;
+            --tag-text: #333333;
+            --question-border: #dddddd;
+            --incorrect-border: #dc2626;
+            --incorrect-bg: #fef2f2;
+            --table-border: #e5e7eb;
+            --code-bg: #1e1e2e;
+            --code-text: #e5e7eb;
+        }
+
+        [data-theme="dark"] {
+            --bg: #121212;
+            --text: #e0e0e0;
+            --heading: #ffffff;
+            --accent: #67e8f9;
+            --accent-secondary: #94a3b8;
+            --intro-bg: #1e1e1e;
+            --intro-border: #333333;
+            --tag-bg: #2a2a2a;
+            --tag-text: #e0e0e0;
+            --question-border: #3a3a3a;
+            --incorrect-border: #f87171;
+            --incorrect-bg: #3a1f1f;
+            --table-border: #333333;
+            --code-bg: #0b0b14;
+            --code-text: #e5e7eb;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 0.9rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            color: var(--text);
+            border-radius: 999px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            font-size: 0.85rem;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .theme-toggle:hover { border-color: var(--accent); }
+
+        .welcome-banner {
+            max-width: 700px;
+            margin: 2rem auto 0;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            color: #fff;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+        }
+        .welcome-banner h1 { margin: 0 0 0.5rem; font-size: 1.8rem; }
+        .welcome-banner p { margin: 0; font-size: 1rem; opacity: 0.9; }
+
+        .warning {
+            max-width: 700px;
+            margin: 1.5rem auto;
+            padding: 1.25rem 1.5rem;
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-left: 5px solid #f59e0b;
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: #78350f;
+        }
+        .warning h2 {
+            margin: 0 0 0.5rem;
+            font-size: 1.15rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .warning p { margin: 0 0 0.6rem; line-height: 1.5; font-size: 0.9rem; }
+        .warning p:last-child { margin-bottom: 0; }
+        .warning strong { color: #92400e; }
+        [data-theme="dark"] .warning {
+            background: #2d2410;
+            border-color: #d97706;
+            color: #fde68a;
+        }
+        [data-theme="dark"] .warning h2 { color: #fbbf24; }
+        [data-theme="dark"] .warning strong { color: #fbbf24; }
+
+        .intro {
+            max-width: 700px;
+            margin: 1.5rem auto;
+            padding: 1.5rem;
+            background: var(--intro-bg);
+            border: 1px solid var(--intro-border);
+            border-radius: 8px;
+            font-family: Roboto, Arial, Helvetica, sans-serif;
+            color: var(--text);
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .intro h2 { margin: 0 0 0.75rem; font-size: 1.4rem; color: var(--heading); }
+        .intro p { margin: 0 0 0.75rem; line-height: 1.5; font-size: 0.95rem; }
+        .intro h3 { margin: 1rem 0 0.5rem; font-size: 1.1rem; color: var(--accent); }
+        .intro ul { margin: 0 0 0.5rem; padding-left: 1.25rem; }
+        .intro ul li { margin-bottom: 0.3rem; font-size: 0.95rem; line-height: 1.4; }
+        .intro code {
+            background: var(--tag-bg);
+            color: var(--text);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .intro table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5rem 0 1rem;
+            font-size: 0.85rem;
+        }
+        .intro table th, .intro table td {
+            text-align: left;
+            padding: 0.4rem 0.5rem;
+            border-bottom: 1px solid var(--table-border);
+        }
+        .intro table th { color: var(--heading); }
+        .intro .tag {
+            display: inline-block;
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            margin: 0.1rem 0.2rem 0.1rem 0;
+        }
+        .intro .placeholder {
+            border: 1px dashed var(--intro-border);
+            border-radius: 6px;
+            padding: 0.75rem 1rem;
+            font-size: 0.85rem;
+            font-style: italic;
+            opacity: 0.75;
+            color: var(--text);
+        }
+        .intro pre {
+            background: var(--code-bg);
+            color: var(--code-text);
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            margin: 0.5rem 0 1rem;
+        }
+        .intro pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+
+        .quiz-container { max-width: 700px; margin: 2rem auto; font-family: Roboto, Arial, Helvetica, sans-serif; }
+        .quiz-question {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            border: 1px solid var(--question-border);
+            border-radius: 8px;
+            color: var(--text);
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .quiz-question.incorrect-question { border-color: var(--incorrect-border); background-color: var(--incorrect-bg); }
+        .quiz-question-title { font-weight: bold; margin-bottom: 0.4rem; color: var(--heading); }
+        .quiz-description { margin: 0 0 0.3rem; color: var(--text); font-size: 0.95rem; }
+        .quiz-instructions { margin: 0 0 0.6rem; color: var(--text); opacity: 0.7; font-size: 0.85rem; font-style: italic; }
+        .quiz-options label { display: block; margin: 0.4rem 0; cursor: pointer; }
+        .quiz-question code {
+            background: var(--tag-bg);
+            color: var(--text);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        .quiz-text-input { width: 100%; padding: 0.5rem; border: 1px solid var(--question-border); border-radius: 4px; font-size: 1rem; box-sizing: border-box; background: var(--bg); color: var(--text); }
+        .quiz-submit { padding: 0.6rem 1.2rem; background: var(--accent); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 1rem; }
+        .quiz-submit:hover { background: var(--accent-secondary); }
+        .quiz-result { margin-top: 1rem; font-weight: bold; }
+        .correct { color: #16a34a; }
+        .incorrect { color: #dc2626; }
+        [data-theme="dark"] .correct { color: #4ade80; }
+        [data-theme="dark"] .incorrect { color: #f87171; }
+    </style>
+</head>
+
+<body>
+ <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+
+ <section class="welcome-banner">
+    <h1>Welcome to the CDCTF Cryptography Training MAT</h1>
+    <p>Learn about ciphers, modern cryptography, and useful tools, then solve the following challenges to get the flag!</p>
+ </section>
+
+ <section class="warning">
+    <h2>⚠️ Before You Begin</h2>
+    <p><strong>Every flag you recover while working through this MAT — from each individual challenge step as well as the one awarded for completing the full quiz — must be submitted separately to the CDCTF CTFd platform.</strong></p>
+    
+    <p>There are <strong>3 total</strong> flags to submit in the CTFd platform for credit.</p>
+ </section>
+
+ <section class="intro">
+    <h2>What is Cryptography?</h2>
+    <p>Cryptography is the practice of protecting information by transforming it so that only someone with the right knowledge (a key, an algorithm, or both) can recover the original content. In a CTF, cryptography challenges hand you some transformed data — ciphertext — and ask you to work backward to recover the plaintext flag.</p>
+    <p>A key distinction worth internalizing early: <strong>encoding is not encryption</strong>. Formats like Base64 and hexadecimal just represent the same bytes differently and require no secret key to reverse — they make binary data safe to print or transmit as text. Encryption, by contrast, is specifically designed to be irreversible without a key or some weakness in the algorithm. Many CTF crypto challenges layer both: data is encrypted, then encoded, so you have to peel back the encoding before the real cryptanalysis even starts.</p>
+ </section>
+
+ <section class="intro">
+    <h2>Classical Ciphers</h2>
+    <p>Classical ciphers predate computers and operate directly on letters, which makes them a common starting point for beginner-friendly challenges. Spotting <em>what stays the same</em> between ciphertext and plaintext — letters only, preserved spacing, preserved punctuation — is often your best first clue that you're looking at one of these.</p>
+    <table>
+        <tr><th>Cipher</th><th>How It Works</th></tr>
+        <tr><td>Caesar / ROT</td><td>Shifts every letter by a fixed number of positions in the alphabet (ROT13 shifts by 13).</td></tr>
+        <tr><td>Atbash</td><td>Reverses the alphabet: A↔Z, B↔Y, and so on — a fixed substitution with no key.</td></tr>
+        <tr><td>Vigenère</td><td>Shifts each letter by an amount determined by a repeating keyword, making it a polyalphabetic cipher.</td></tr>
+        <tr><td>Affine</td><td>Applies a mathematical function (<code>(ax + b) mod 26</code>) to each letter's numeric position.</td></tr>
+    </table>
+    <p>All of these preserve capitalization, whitespace, and punctuation, and only ever substitute one letter for another — which is exactly the kind of pattern you should be looking for when you suspect a classical cipher is in play.</p>
+ </section>
+
+ <section class="intro">
+    <h2>Modern Cryptography</h2>
+    <p>Modern cryptography operates on raw bytes rather than letters, and is generally split into two families:</p>
+    <ul>
+        <li><strong>Symmetric encryption</strong> (e.g. AES, XOR ciphers): The same key is used to encrypt and decrypt. XOR is especially common in CTFs because it's simple, fast, and — critically — its own inverse: XOR-ing ciphertext with the same key recovers the plaintext.</li>
+        <li><strong>Asymmetric encryption</strong> (e.g. RSA): Uses a mathematically related key pair — a public key to encrypt, a private key to decrypt. CTF challenges in this space often exploit weak key generation or small parameters rather than breaking the underlying math directly.</li>
+    </ul>
+    <h3>Cribbing: A Core Technique</h3>
+    <p>When you suspect data has been encrypted with a simple, reversible operation, a <strong>crib</strong> — a guess at a piece of known plaintext (like <code>cdctf{</code>, since you know every flag starts with it) — lets you test that guess against the start of the ciphertext. If applying an operation (XOR, subtraction, etc.) between your crib and the ciphertext produces a clean, repeating pattern, you've likely found both the operation and the key.</p>
+ </section>
+
+ <section class="intro">
+    <h2>Toolbox</h2>
+    <ul>
+        <li><strong><a href="https://gchq.github.io/CyberChef/" target="_blank" rel="noopener noreferrer">CyberChef</a></strong>: A browser-based "data manipulation" tool with building blocks for encoding/decoding, classical ciphers, XOR, and much more — chain operations together into a reusable recipe.</li>
+        <li><strong><a href="https://www.dcode.fr/en" target="_blank" rel="noopener noreferrer">dCode</a></strong>: A large collection of online cipher solvers and identifiers, including an automatic cipher identifier if you're not sure what you're looking at.</li>
+        <li><strong><a href="https://quipqiup.com/" target="_blank" rel="noopener noreferrer">quipqiup</a></strong>: An automatic solver for substitution ciphers that works from letter-frequency analysis alone.</li>
+        <li><strong><a href="https://www.openssl.org/docs/" target="_blank" rel="noopener noreferrer">OpenSSL</a></strong>: A command-line toolkit for working with modern cryptographic primitives (hashing, symmetric/asymmetric encryption, certificates).</li>
+        <li><strong><a href="https://github.com/Ganapati/RsaCtfTool" target="_blank" rel="noopener noreferrer">RsaCtfTool</a></strong>: Automates common RSA attacks against weak keys, a staple for CTF-style RSA challenges.</li>
+    </ul>
+ </section>
+
+ <section class="intro">
+    <h2>Challenge 1: BrainROT</h2>
+    <p>This challenge focuses on classical, letter-based ciphers — use the "what stays the same" approach from the Classical Ciphers section above to narrow down what you're dealing with.</p>
+    <h3>Challenge File</h3>
+    <p>Download <code>brainROT.txt</code></p>
+ </section>
+
+ <!-- Quiz Part 1: q1–q3 (BrainROT) -->
+ <section class="quiz-container" id="quizPart1"></section>
+
+ <section class="intro">
+    <h2>Before You Continue</h2>
+    <p>Classical ciphers work on letters; the next challenge works on raw bytes instead. You'll need to think in terms of encodings (like hex) and byte-wise operations (like XOR) rather than alphabet shifts.</p>
+ </section>
+
+ <section class="intro">
+    <h2>Challenge 2: XORtation</h2>
+    <p>This challenge involves an encoding layer followed by an encryption layer — use the cribbing technique from the Modern Cryptography section above once you've peeled back the encoding.</p>
+    <h3>Challenge File</h3>
+    <p>Download <code>XORtation.txt</code></p>
+ </section>
+
+ <section class="quiz-container" id="quizPart2"></section>
+
+ <script>
+    // ----- Dark mode toggle -----
+    const themeToggle = document.getElementById('themeToggle');
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️ Light Mode';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙 Dark Mode';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('cdctf-theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(savedTheme || (prefersDark ? 'dark' : 'light'));
+
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      applyTheme(newTheme);
+      localStorage.setItem('cdctf-theme', newTheme);
+    });
+
+    // ----- Quiz -----
+    const questions = [
+      {
+        id: 'q1',
+        type: 'checkbox',
+        title: 'BrainROT - Step 1: What stays the same?',
+        description: "The first step in any cryptography challenge is to know what we're looking at: how has the data been manipulated? That can often be best answered by noticing what, it appears, has NOT changed. Which of the following are preserved?",
+        instructions: 'Select all that apply.',
+        options: [
+          { value: 'a', label: 'Letters' },
+          { value: 'b', label: 'Capitalization' },
+          { value: 'c', label: 'Whitespace' },
+          { value: 'd', label: 'Special Characters' }
+        ],
+        answer: ['b', 'c', 'd']
+      },
+      {
+        id: 'q2',
+        type: 'mc',
+        title: 'BrainROT - Step 2: What does that mean?',
+        description: 'Based on the above, what can we most likely say about the cipher?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'Each output character depends on every input character' },
+          { value: 'b', label: 'The cipher operates on ASCII values' },
+          { value: 'c', label: 'The cipher makes alphabetic substitutions' },
+          { value: 'd', label: 'The cipher uses a short key length' }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q3',
+        type: 'mc',
+        title: 'BrainROT - Step 3: But Which Cipher?',
+        description: "There is a good chance you already know this cipher, but if you ever do not, give CyberChef or the dCode cipher identifier a shot. Which alphabetical cipher is the text encoded with? Submit the flag on CTFd!",
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'Affine Cipher' },
+          { value: 'b', label: 'Vigenère Cipher' },
+          { value: 'c', label: 'Atbash' },
+          { value: 'd', label: 'ROT/Caesar' }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q4',
+        type: 'mc',
+        title: 'XORtation - Step 1: Making it Meaningful',
+        description: "Often, the result of encryption is not readable or printable, since it consists of arbitrary bytes. In these cases, most challenges render them in a different <em>base</em>. Which base is this in? Use a shell, scripting language, or CyberChef to try and decode it!",
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'Base 2 (Binary)' },
+          { value: 'b', label: 'Base 8 (Octal)' },
+          { value: 'c', label: 'Base 16 (Hexadecimal)' },
+          { value: 'd', label: 'Base 64 (Hexacontakaitetral)' }
+        ],
+        answer: 'c'
+      },
+      {
+        id: 'q5',
+        type: 'mc',
+        title: 'XORtation - Step 2: Cribbing',
+        description: 'Since the decoded bytes do not seem readable, our text is probably further enciphered or encrypted. To try and determine how, we can use a <em>crib</em> of <code>cdctf{</code> and attempt some common invertible operations. Which operation gives a clear pattern when applied byte-wise to the first 6 bytes of ciphertext and the string <code>cdctf{</code>?',
+        instructions: 'Select the one correct answer.',
+        options: [
+          { value: 'a', label: 'Addition' },
+          { value: 'b', label: 'XOR' },
+          { value: 'c', label: 'Multiplication' },
+          { value: 'd', label: 'Modulus' }
+        ],
+        answer: 'b'
+      },
+      {
+        id: 'q6',
+        type: 'freeresponse',
+        title: 'XORtation - Step 3: Decrypting',
+        description: 'When cribbing yields a clear pattern, we can then continue that pattern for the whole length of the input (CyberChef does this for you) and apply it using the inverse operation that we used for our crib. What is the inverse of XOR? Use it to decrypt the string and submit the flag on CTFd!',
+        instructions: 'Type your answer in the box below.',
+        answer: ['xor']
+      }
+    ];
+
+    const groupBoundaries = [3, questions.length];
+
+    function renderQuestionGroup(group, startIndex) {
+      return group.map((q, i) => {
+        let bodyHtml = '';
+
+        if (q.type === 'mc') {
+          bodyHtml = q.options.map(opt =>
+            `<label><input type="radio" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+          ).join('\n');
+        } else if (q.type === 'checkbox') {
+          bodyHtml = q.options.map(opt =>
+            `<label><input type="checkbox" name="${q.id}" value="${opt.value}"> ${opt.label}</label>`
+          ).join('\n');
+        } else if (q.type === 'freeresponse') {
+          bodyHtml = `<input type="text" name="${q.id}" class="quiz-text-input" placeholder="Your answer">`;
+        }
+
+        return `
+          <div class="quiz-question" data-question="${q.id}">
+            <p class="quiz-question-title">${q.title}</p>
+            <p class="quiz-description">${q.description}</p>
+            <p class="quiz-instructions">${q.instructions}</p>
+            <div class="quiz-options">
+              ${bodyHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderQuiz() {
+      const group1 = questions.slice(0, groupBoundaries[0]);
+      const group2 = questions.slice(groupBoundaries[0], groupBoundaries[1]);
+
+      document.getElementById('quizPart1').innerHTML = renderQuestionGroup(group1, 0);
+
+      document.getElementById('quizPart2').innerHTML =
+        renderQuestionGroup(group2, groupBoundaries[0]) +
+        `<button type="button" id="quizSubmit" class="quiz-submit">Submit</button>
+         <div id="quizResult" class="quiz-result"></div>`;
+
+      document.getElementById('quizSubmit').addEventListener('click', scoreQuiz);
+    }
+
+    function scoreQuiz() {
+      let score = 0;
+      const total = questions.length;
+
+      document.querySelectorAll('.quiz-question').forEach(q => {
+        q.classList.remove('incorrect-question');
+      });
+
+      questions.forEach(q => {
+        let isCorrect = false;
+
+        if (q.type === 'mc') {
+          const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+          isCorrect = selected && selected.value === q.answer;
+        } else if (q.type === 'checkbox') {
+          const checked = Array.from(document.querySelectorAll(`input[name="${q.id}"]:checked`)).map(el => el.value);
+          isCorrect =
+            checked.length === q.answer.length &&
+            q.answer.every(val => checked.includes(val));
+        } else if (q.type === 'freeresponse') {
+          const input = document.querySelector(`input[name="${q.id}"]`);
+          const value = input ? input.value.trim().toLowerCase() : '';
+          isCorrect = q.answer.map(a => a.toLowerCase()).includes(value);
+        }
+
+        if (isCorrect) {
+          score++;
+        } else {
+          const questionEl = document.querySelector(`.quiz-question[data-question="${q.id}"]`);
+          if (questionEl) questionEl.classList.add('incorrect-question');
+        }
+      });
+
+      const resultEl = document.getElementById('quizResult');
+
+      if (score === total) {
+        resultEl.textContent = 'Congratulations! You completed the CDCTF Cryptography Training MAT! Here is your flag to enter on the CTFd platform: cdctf{!f_th3_kEy_fiT$}';
+        resultEl.className = 'quiz-result correct';
+      } else {
+        resultEl.textContent = `You scored ${score} out of ${total}. Incorrect questions are highlighted.`;
+        resultEl.className = 'quiz-result incorrect';
+      }
+    }
+
+    renderQuiz();
+ </script>
+</body>
+</html>
