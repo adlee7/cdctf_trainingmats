@@ -324,7 +324,7 @@
           { value: 'c', label: 'It is distributed throughout the shuffled alphabet' },
           { value: 'd', label: 'It is Base64 encoded using the alphabet' }
         ],
-        answer: 'c'
+        answer: ['c']
       },
       {
         id: 'q2',
@@ -338,7 +338,7 @@
           { value: 'c', label: 'The value added to each Secret character before insertion' },
           { value: 'd', label: 'The shift applied to the alphabet before insertion' }
         ],
-        answer: 'a'
+        answer: ['a']
       },
       {
         id: 'q3',
@@ -469,7 +469,7 @@
 
         if (q.type === 'mc') {
           const selected = document.querySelector(`input[name="${q.id}"]:checked`);
-          isCorrect = selected && selected.value === q.answer;
+          isCorrect = !!selected && q.answer.includes(selected.value);
         } else if (q.type === 'checkbox') {
           const checked = Array.from(document.querySelectorAll(`input[name="${q.id}"]:checked`)).map(el => el.value);
           isCorrect =
