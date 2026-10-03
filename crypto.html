@@ -346,7 +346,7 @@
           { value: 'c', label: 'The cipher makes alphabetic substitutions' },
           { value: 'd', label: 'The cipher uses a short key length' }
         ],
-        answer: 'c'
+        answer: ['c']
       },
       {
         id: 'q3',
@@ -360,7 +360,7 @@
           { value: 'c', label: 'Atbash' },
           { value: 'd', label: 'ROT/Caesar' }
         ],
-        answer: 'c'
+        answer: ['c']
       },
       {
         id: 'q4',
@@ -458,7 +458,7 @@
 
         if (q.type === 'mc') {
           const selected = document.querySelector(`input[name="${q.id}"]:checked`);
-          isCorrect = selected && selected.value === q.answer;
+          isCorrect = !!selected && q.answer.includes(selected.value);
         } else if (q.type === 'checkbox') {
           const checked = Array.from(document.querySelectorAll(`input[name="${q.id}"]:checked`)).map(el => el.value);
           isCorrect =
